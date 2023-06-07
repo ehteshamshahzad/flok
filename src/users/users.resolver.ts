@@ -1,26 +1,28 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
-import { UsersService } from './users.service';
-import { User } from './entities/user.entity';
-import { CreateUserInput } from './dto/create-user.input';
+import { Args, ID, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { RegisterUserResponseDto } from './dto/register-user-response.dto';
+import { RegisterUserInput } from './dto/register-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
+import { User } from './entities/user.entity';
+import { UsersService } from './users.service';
 
 @Resolver(() => User)
 export class UsersResolver {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
-  @Mutation(() => User)
-  createUser(@Args('createUserInput') createUserInput: CreateUserInput) {
-    return this.usersService.create(createUserInput);
+  @Mutation(() => RegisterUserResponseDto)
+  registerUser(@Args('registerUserInput') registerUserInput: RegisterUserInput) {
+    return this.usersService.register(registerUserInput);
   }
 
+  // TODO: Close this API. Or make it admin only
   @Query(() => [User], { name: 'users' })
   findAll() {
     return this.usersService.findAll();
   }
 
   @Query(() => User, { name: 'user' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
-    return this.usersService.findOne(id);
+  async findOne(@Args('id', { type: () => ID }) id: string) {
+    return await this.usersService.findOne(id);
   }
 
   @Mutation(() => User)
