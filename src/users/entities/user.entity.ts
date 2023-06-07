@@ -1,26 +1,44 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { isEmail } from 'class-validator';
-import { BaseEntity } from 'src/base-entity';
 import { Column, Entity, Index } from 'typeorm';
+import { BaseEntity } from '../../base-entity';
+import { AccountStatus } from './account-status.enum';
+import { UserType } from './user-type.enum';
 
 @Entity('user')
 @ObjectType()
 export class User extends BaseEntity {
 
-  @Column({ name: 'email', nullable: false, unique: true, length: 100 })
-  @Field({ name: 'email', nullable: false, description: 'email' })
+  @Column({ nullable: false, unique: true, length: 100 })
+  @Field({ nullable: false, description: `User's email` })
   @Index()
-  private _email: string;
+  email: string;
 
-  get email(): string {
-    return this._email;
-  }
+  @Column({ nullable: false, length: 50 })
+  @Field({ nullable: false, description: `User's name` })
+  name: string;
 
-  set email(email: string) {
-    if (!isEmail(email)) {
-      throw Error('Invalid email');
-    }
-    email = email.toLowerCase();
-    this._email = email;
-  }
+  @Column({ nullable: false })
+  @Field({ nullable: false, description: `User's password` })
+  password: string;
+
+  @Column({ nullable: false, default: 'parent', length: 8 })
+  @Field({ nullable: false, description: `User type: 'Parent' | 'Admin' | 'Provider'` })
+  userType: UserType;
+
+  @Column({ nullable: true })
+  @Field({ nullable: true, description: `Profile Image URL` })
+  profileImageURL: string;
+
+  @Column({ nullable: true })
+  @Field({ nullable: true, description: `Image Key` })
+  profileImageKey: string;
+
+  @Column({ nullable: true })
+  @Field({ nullable: true, description: `Date of birth` })
+  dateOfBirth: Date;
+
+  @Column({ nullable: false, default: 'Unverified', length: 10 })
+  @Field({ nullable: false, description: `User's account status: 'Active' | 'Deleted' | 'Suspended' | 'Unverified'` })
+  accountStatus: AccountStatus;
+
 }
