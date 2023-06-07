@@ -1,13 +1,14 @@
-import { Field } from '@nestjs/graphql';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { isUUID } from 'class-validator';
-import { CreateDateColumn, PrimaryColumn } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, CreateDateColumn, PrimaryColumn } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 
+@ObjectType()
 export class BaseEntity {
 
-    @PrimaryColumn({ name: 'id', length: 36 })
-    @Field({ name: 'id', nullable: false, description: 'Primary ID' })
-    private _id: string;
+    @PrimaryColumn({ length: 36 })
+    @Field(() => ID, { nullable: false, description: 'Primary ID' })
+    id: string;
 
     @CreateDateColumn({ nullable: true })
     @Field({ nullable: false, description: 'Created at Date' })
@@ -17,15 +18,22 @@ export class BaseEntity {
     @Field({ nullable: false, description: 'Updated at Date' })
     updatedAt: Date;
 
-    get id(): string {
-        return this._id;
+    set setId(id: string) {
+        if (isUUID(id)) {
+            this.id = id;
+            return;
+        }
+        this.id = uuidv4();
     }
 
-    set id(id: string) {
-        if (isUUID(id)) {
-            this._id = id;
-        }
-        this._id = uuidv4();
+    @BeforeInsert()
+    updateCreatedAt() {
+        this.createdAt = new Date()
+    }
+
+    @BeforeUpdate()
+    updateUpdatedAt() {
+        this.updatedAt = new Date()
     }
 
 }
