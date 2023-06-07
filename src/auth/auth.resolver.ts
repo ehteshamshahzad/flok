@@ -1,10 +1,10 @@
 import { Args, Query, Resolver } from '@nestjs/graphql';
+import { User } from 'src/users/entities/user.entity';
 import { AuthService } from './auth.service';
 import { LoginUserResponse } from './dto/login-user-response.dto';
 import { LoginUserInput } from './dto/login-user.input';
-import { Auth } from './entities/auth.entity';
 
-@Resolver(() => Auth)
+@Resolver(() => User)
 export class AuthResolver {
   constructor(private readonly authService: AuthService) { }
 

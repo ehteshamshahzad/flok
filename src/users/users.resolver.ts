@@ -1,6 +1,7 @@
 import { UseGuards } from '@nestjs/common';
-import { Args, ID, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { AccessTokenGuard } from 'src/auth/guard/accessToken.guard';
+import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { CurrentUser } from 'src/auth/current-user.decorator';
+import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
 import { RegisterUserResponseDto } from 'src/users/dto/register-user-response.dto';
 import { RegisterUserInput } from 'src/users/dto/register-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
@@ -18,14 +19,15 @@ export class UsersResolver {
 
   // TODO: Close this API. Or make it admin only
   @Query(() => [User], { name: 'users' })
-  @UseGuards(AccessTokenGuard)
+  @UseGuards(GqlAuthGuard)
   findAll() {
     return this.usersService.findAll();
   }
 
   @Query(() => User, { name: 'user' })
-  async findOne(@Args('id', { type: () => ID }) id: string) {
-    return await this.usersService.findOne(id);
+  @UseGuards(GqlAuthGuard)
+  async findOne(@CurrentUser() user: User) {
+    return await this.usersService.findOne(user.id);
   }
 
   @Mutation(() => User)

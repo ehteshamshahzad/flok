@@ -35,28 +35,21 @@ export class AuthService {
       }, HttpStatus.NOT_FOUND);
     }
 
-    const accessToken = await this.getTokens(user.id, loginUserInput.email);
+    const accessToken = await this.jwtService.signAsync(
+      {
+        sub: user.id,
+        name: loginUserInput.email,
+      },
+      {
+        secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+        expiresIn: '86400s',
+      },
+    );
     const result: LoginUserResponse = {
       accessToken
     };
 
     return result;
-  }
-
-  async getTokens(userId: string, email: string) {
-    const accessToken = await
-      this.jwtService.signAsync(
-        {
-          sub: userId,
-          name: email,
-        },
-        {
-          secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
-          expiresIn: '86400s',
-        },
-      );
-
-    return accessToken;
   }
 
 }
