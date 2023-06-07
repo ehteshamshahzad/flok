@@ -82,43 +82,6 @@ export class UsersService {
     return result;
   }
 
-  /**
-   * Requirements
-   * 1. Check if user against a given email exists
-   * 2. Check if password matches the hashed password
-   * 3. Return User id
-   */
-  // async login(loginUserInput: LoginUserInput) {
-
-  //   const user = await this.usersRepository.findOne({
-  //     where: { email: loginUserInput.email },
-  //     select: { id: true, password: true }
-  //   });
-
-  //   const checkPassword = await argon2.verify(user.password, loginUserInput.password, {
-  //     type: argon2.argon2id,
-  //     memoryCost: 2 ** 16,
-  //     hashLength: 50,
-  //     secret: Buffer.from(this.configService.get<string>('HASH_SECRET')),
-  //   });
-
-  //   if (!user || checkPassword) {
-  //     throw new HttpException({
-  //       statusCode: HttpStatus.NOT_FOUND,
-  //       error: 'Not Found',
-  //       message: [
-  //         'Incorrect email or password'
-  //       ]
-  //     }, HttpStatus.NOT_FOUND);
-  //   }
-
-  //   const result: LoginUserResponse = {
-  //     id: user.id
-  //   };
-
-  //   return result;
-  // }
-
   async findUserIdPasswordByEmail(email: string): Promise<User> {
     return await this.usersRepository.findOne({ where: { email }, select: { id: true, password: true } })
   }
