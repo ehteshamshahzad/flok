@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import * as argon2 from 'argon2';
+// import * as argon2 from 'argon2';
 import { LoginUserResponse } from 'src/auth/dto/login-user-response.dto';
 import { UsersService } from 'src/users/users.service';
 import { LoginUserInput } from './dto/login-user.input';
@@ -18,14 +18,16 @@ export class AuthService {
   async login(loginUserInput: LoginUserInput) {
     const user = await this.usersService.findUserIdPasswordByEmail(loginUserInput.email);
 
-    const checkPassword = await argon2.verify(user.password, loginUserInput.password, {
-      type: argon2.argon2id,
-      memoryCost: 2 ** 16,
-      hashLength: 50,
-      secret: Buffer.from(this.configService.get<string>('HASH_SECRET')),
-    });
+    // const checkPassword = await argon2.verify(user.password, loginUserInput.password, {
+    //   type: argon2.argon2id,
+    //   memoryCost: 2 ** 16,
+    //   hashLength: 50,
+    //   secret: Buffer.from(this.configService.get<string>('HASH_SECRET')),
+    // });
 
-    if (!user || checkPassword) {
+    if (!user
+      // || checkPassword
+    ) {
       throw new HttpException({
         statusCode: HttpStatus.NOT_FOUND,
         error: 'Not Found',

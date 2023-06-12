@@ -3,23 +3,42 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
 import { config } from './orm.config';
 import { UsersModule } from './users/users.module';
-import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      include: [],
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      // include: [],
+      autoSchemaFile: true,
+      csrfPrevention: false,
+      playground: true,
+      // useFactory: () => {
+      //   const schemaModuleOptions: Partial<GqlModuleOptions> = {};
+      //   // If we are in development, we want to generate the schema.graphql
+      //   log("process.env.NODE_ENV: ", process.env.NODE_ENV);
+      //   if (process.env.NODE_ENV !== 'production' || process.env.IS_OFFLINE) {
+      //     schemaModuleOptions.autoSchemaFile = 'src/schema.gql';
+      //   } else {
+      //     // For production, the file should be generated
+      //     schemaModuleOptions.typePaths = ['dist/*.gql'];
+      //   }
+
+      //   return {
+      //     context: ({ req }) => ({ req }),
+      //     playground: true, // Allow playground in production
+      //     introspection: true, // Allow introspection in production
+      //     ...schemaModuleOptions,
+      //   };
+      // },
     }),
     ConfigModule.forRoot(
       {
-        envFilePath: ['.env.prod', '.env.beta', '.env.dev', '.env'],
+        envFilePath: ['.env.beta', '.env'],
         ignoreEnvFile: false,
         isGlobal: true,
       }

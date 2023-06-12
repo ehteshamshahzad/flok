@@ -17,7 +17,9 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "serverless:dev": "rimraf dist && nest build && sls offline",
+    "serverless:beta": "rimraf dist && rimraf .serverless && nest build && serverless deploy --stage beta"
   },
   "dependencies": {
     "@apollo/server": "^4.7.1",
@@ -30,7 +32,8 @@
     "@nestjs/passport": "9.0.3",
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/typeorm": "9.0.1",
-    "argon2": "^0.30.3",
+    "@vendia/serverless-express": "^4.10.4",
+    "aws-lambda": "^1.0.7",
     "class-transformer": "0.5.1",
     "class-validator": "0.14.0",
     "dotenv": "16.1.4",
@@ -40,6 +43,7 @@
     "passport-jwt": "4.0.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
+    "serverless-offline": "^12.0.4",
     "typeorm": "0.3.16",
     "uuid": "9.0.0"
   },

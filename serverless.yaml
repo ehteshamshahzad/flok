@@ -1,0 +1,60 @@
+service: flok-backend
+frameworkVersion: '>=3'
+
+useDotenv: true
+
+plugins:
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  architecture: arm64
+  memorySize: 1024
+  timeout: 30
+  region: us-east-1
+  environment:
+    JWT_ACCESS_SECRET: ${env:JWT_ACCESS_SECRET}
+    DATABASE_HOST: ${env:DATABASE_HOST}
+    DATABASE_PORT: ${env:DATABASE_PORT}
+    DATABASE_USER: ${env:DATABASE_USER}
+    DATABASE_PASSWORD: ${env:DATABASE_PASSWORD}
+    DATABASE_NAME: ${env:DATABASE_NAME}
+
+    HASH_SECRET: ${env:HASH_SECRET}
+    
+    AWS_PROFILE: ${env:AWS_PROFILE}
+    ACCESS_KEY_ID: ${env:ACCESS_KEY_ID}
+    SECRET_ACCESS_KEY: ${env:SECRET_ACCESS_KEY}
+    REGION: ${env:REGION}
+
+package:
+  excludeDevDependencies: true
+  patterns:
+    - '!node_modules/windows-release/**'
+    - '!node_modules/@esbuild/**'
+    - '!node_modules/@eslint/**'
+    - '!node_modules/@eslint-community/**'
+    - '!node_modules/@types/**'
+    - '!node_modules/@typescript-eslint/**'
+    - '!node_modules/typescript/**'
+    - '!.git/**'
+
+functions:
+  main:
+    handler: dist/serverless.handler
+    environment:
+      NODE_ENV: production
+      # https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/node-reusing-connections.html
+      AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+    events:
+      - http:
+          cors: true
+          method: ANY
+          path: /
+      - http:
+          cors: true
+          method: ANY
+          path: '{proxy+}'
+
+

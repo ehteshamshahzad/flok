@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as argon2 from 'argon2';
+// import * as argon2 from 'argon2';
 import { Repository } from 'typeorm';
 import { RegisterUserResponseDto } from './dto/register-user-response.dto';
 import { RegisterUserInput } from './dto/register-user.input';
@@ -56,12 +56,13 @@ export class UsersService {
     user.userType = registerUserInput.userType;
     user.email = registerUserInput.email;
     user.name = registerUserInput.name;
-    user.password = await argon2.hash(registerUserInput.password, {
-      type: argon2.argon2id,
-      memoryCost: 2 ** 16,
-      hashLength: 50,
-      secret: Buffer.from(this.configService.get<string>('HASH_SECRET'))
-    });
+    user.password = registerUserInput.password;
+    // user.password = await argon2.hash(registerUserInput.password, {
+    //   type: argon2.argon2id,
+    //   memoryCost: 2 ** 16,
+    //   hashLength: 50,
+    //   secret: Buffer.from(this.configService.get<string>('HASH_SECRET'))
+    // });
 
     const existingUser = await existingUserPromise;
     if (existingUser) {
