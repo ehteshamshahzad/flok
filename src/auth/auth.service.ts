@@ -1,10 +1,15 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-// import * as argon2 from 'argon2';
 import { LoginUserResponse } from 'src/auth/dto/login-user-response.dto';
+import { AccountStatus } from 'src/users/entities/account-status.enum';
+import { UserType } from 'src/users/entities/user-type.enum';
+import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
+import { hashFunction } from 'src/utils/hash-password';
 import { LoginUserInput } from './dto/login-user.input';
+import { RegisterUserResponseDto } from './dto/register-user-response.dto';
+import { RegisterUserInput } from './dto/register-user.input';
 
 @Injectable()
 export class AuthService {
@@ -18,16 +23,9 @@ export class AuthService {
   async login(loginUserInput: LoginUserInput) {
     const user = await this.usersService.findUserIdPasswordByEmail(loginUserInput.email);
 
-    // const checkPassword = await argon2.verify(user.password, loginUserInput.password, {
-    //   type: argon2.argon2id,
-    //   memoryCost: 2 ** 16,
-    //   hashLength: 50,
-    //   secret: Buffer.from(this.configService.get<string>('HASH_SECRET')),
-    // });
+    const checkPassword = hashFunction(loginUserInput.password, `${this.configService.get<string>('HASH_SECRET')}_${user.id}`); // true
 
-    if (!user
-      // || checkPassword
-    ) {
+    if (!user || (checkPassword !== user.password)) {
       throw new HttpException({
         statusCode: HttpStatus.NOT_FOUND,
         error: 'Not Found',
@@ -51,6 +49,67 @@ export class AuthService {
       accessToken
     };
 
+    return result;
+  }
+
+  /**
+  * Requirements
+  * 1. Make sure passwords match
+  * 2. Make sure email is not already in use
+  * 3. Encrypt password
+  * 4. Save user
+  * 5. Return DTO containing only the email and name
+  */
+  async register(registerUserInput: RegisterUserInput): Promise<RegisterUserResponseDto> {
+
+    if (registerUserInput.userType === UserType.ADMIN) {
+      throw new HttpException({
+        statusCode: HttpStatus.FORBIDDEN,
+        error: 'Request failed',
+        message: [
+          'Please contact support'
+        ]
+      }, HttpStatus.FORBIDDEN);
+    }
+
+    if (registerUserInput.password !== registerUserInput.confirmPassword) {
+      throw new HttpException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        error: 'Invalid password',
+        message: [
+          "Passwords do not match"
+        ]
+      }, HttpStatus.BAD_REQUEST);
+    }
+
+    const existingUserPromise = this.usersService.findUserIdByEmail(registerUserInput.email);
+
+    const user = new User();
+    user.setId = undefined;
+    user.accountStatus = AccountStatus.UNVERIFIED;
+    user.userType = registerUserInput.userType;
+    user.email = registerUserInput.email;
+    user.name = registerUserInput.name;
+    user.password = registerUserInput.password;
+
+    user.password = hashFunction(registerUserInput.password, `${this.configService.get<string>('HASH_SECRET')}_${user.id}`);
+
+    const existingUser = await existingUserPromise;
+    if (existingUser) {
+      throw new HttpException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        error: 'Invalid Email',
+        message: [
+          "Email address is already in use"
+        ]
+      }, HttpStatus.BAD_REQUEST);
+    }
+
+    const savedUser = await this.usersService.createUser(user);
+    const result: RegisterUserResponseDto = {
+      name: savedUser.name,
+      email: savedUser.email
+    }
     return result;
   }
 

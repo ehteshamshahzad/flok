@@ -1,7 +1,7 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { Transform } from 'class-transformer';
 import { IsEmail, IsEnum, IsNotEmpty, IsString, MinLength } from 'class-validator';
-import { UserType } from '../entities/user-type.enum';
+import { UserType } from 'src/users/entities/user-type.enum';
 
 @InputType()
 export class RegisterUserInput {

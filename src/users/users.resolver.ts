@@ -1,7 +1,5 @@
 import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CurrentUser } from 'src/auth/current-user.decorator';
-import { RegisterUserResponseDto } from 'src/users/dto/register-user-response.dto';
-import { RegisterUserInput } from 'src/users/dto/register-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
@@ -15,11 +13,6 @@ export class UsersResolver {
   @Query(() => [User], { name: 'users' })
   findAll() {
     return this.usersService.findAll();
-  }
-
-  @Mutation(() => RegisterUserResponseDto)
-  registerUser(@Args('registerUserInput') registerUserInput: RegisterUserInput) {
-    return this.usersService.register(registerUserInput);
   }
 
   // @UseGuards(GqlAuthGuard)
