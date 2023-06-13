@@ -7,7 +7,7 @@ export const seedUsers = [
         id: '',
         name: 'Ehtesham Shahzad',
         email: 'ehteshamshahzad@hotmail.com',
-        password: '1234567890',
+        password: '^#^5c^IX11$3',
         userType: UserType.ADMIN,
         accountStatus: AccountStatus.ACTIVE
     },
@@ -15,7 +15,7 @@ export const seedUsers = [
         id: '',
         name: 'Daniyal Sultan',
         email: 'daniyalsultan8@gmail.com',
-        password: '1234567890',
+        password: 'E!!^$595H3lf',
         userType: UserType.ADMIN,
         accountStatus: AccountStatus.ACTIVE
     },
@@ -23,7 +23,7 @@ export const seedUsers = [
         id: '',
         name: 'Philip Cutting',
         email: 'cuttingphilip@gmail.com',
-        password: '1234567890',
+        password: '3&4L9%Bo3q#&',
         userType: UserType.ADMIN,
         accountStatus: AccountStatus.ACTIVE
     },
@@ -31,7 +31,7 @@ export const seedUsers = [
         id: '',
         name: 'Ahtisham Badar',
         email: 'ahtisham.rajpoot.badar@gmail.com',
-        password: '1234567890',
+        password: '$*Kz2%5#4T8m',
         userType: UserType.ADMIN,
         accountStatus: AccountStatus.ACTIVE
     },
