@@ -77,7 +77,7 @@ export class AuthService {
         statusCode: HttpStatus.BAD_REQUEST,
         error: 'Invalid password',
         message: [
-          "Passwords do not match"
+          'Passwords do not match'
         ]
       }, HttpStatus.BAD_REQUEST);
     }
@@ -100,7 +100,7 @@ export class AuthService {
         statusCode: HttpStatus.BAD_REQUEST,
         error: 'Invalid Email',
         message: [
-          "Email address is already in use"
+          'Email address is already in use'
         ]
       }, HttpStatus.BAD_REQUEST);
     }
