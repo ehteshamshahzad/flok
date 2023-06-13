@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UpdateUserInput } from './dto/update-user.input';
+import { UserDto } from './dto/user.input';
 import { User } from './entities/user.entity';
 import { seedUsers } from './seed';
 
@@ -12,17 +13,50 @@ export class UsersService {
     @InjectRepository(User) private readonly usersRepository: Repository<User>
   ) { }
 
-  async findUserIdPasswordByEmail(email: string): Promise<User> {
-    return await this.usersRepository.findOne({ where: { email }, select: { id: true, password: true } })
+  async findUserIdNameUserTypeProfileImageDoBPasswordByEmail(email: string): Promise<User> {
+    return this.usersRepository.findOne({
+      where: { email },
+      select: {
+        id: true,
+        name: true,
+        userType: true,
+        profileImageURL: true,
+        dateOfBirth: true,
+        password: true
+      }
+    });
   }
 
-  findAll() {
-    return this.usersRepository.find();
+  async findAll() {
+    const usersResponse: UserDto[] = [];
+    const users = await this.usersRepository.find({ select: { id: true, name: true, email: true, accountStatus: true, dateOfBirth: true, profileImageURL: true, userType: true } });
+    for (let i = 0; i < users.length; i++) {
+      usersResponse.push({
+        id: users[i].id,
+        name: users[i].name,
+        email: users[i].email,
+        dateOfBirth: users[i].dateOfBirth,
+        profileImageURL: users[i].profileImageURL,
+        userType: users[i].userType
+      });
+    }
+    return usersResponse;
   }
 
-  async findOne(id: string): Promise<User> {
-    const result = await this.usersRepository.findOne({ where: { id } }) ?? {} as User;
-    return result;
+  async findOne(id: string): Promise<UserDto> {
+    return await this.usersRepository.findOne({ where: { id } }) ?? {} as UserDto;
+  }
+
+  async updateUser(userId: string, updateUserInput: UpdateUserInput): Promise<UserDto> {
+
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+
+    user.updateUpdatedAt();
+    user.name = updateUserInput.name;
+    user.dateOfBirth = updateUserInput.dateOfBirth && updateUserInput.dateOfBirth;
+
+    await this.usersRepository.update(userId, user);
+    return await this.findOne(userId) as UserDto;
   }
 
   async findUserIdByEmail(email: string): Promise<User> {
@@ -34,7 +68,7 @@ export class UsersService {
   }
 
   async seed() {
-    const savedUsersPromise = [];
+    const savedUsersPromise: Promise<User>[] = [];
     for (let i = 0; i < seedUsers.length; i++) {
       const user = new User();
       user.setId = undefined;
@@ -49,13 +83,5 @@ export class UsersService {
     for (let i = 0; i < savedUsersPromise.length; i++) {
       await savedUsersPromise[i];
     }
-  }
-
-  update(id: number, updateUserInput: UpdateUserInput) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
   }
 }

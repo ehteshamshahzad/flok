@@ -21,7 +21,7 @@ export class AuthService {
   ) { }
 
   async login(loginUserInput: LoginUserInput) {
-    const user = await this.usersService.findUserIdPasswordByEmail(loginUserInput.email);
+    const user = await this.usersService.findUserIdNameUserTypeProfileImageDoBPasswordByEmail(loginUserInput.email);
 
     const checkPassword = hashFunction(loginUserInput.password, `${this.configService.get<string>('HASH_SECRET')}_${user.id}`); // true
 
@@ -46,6 +46,12 @@ export class AuthService {
       },
     );
     const result: LoginUserResponse = {
+      id: user.id,
+      name: user.name,
+      email: loginUserInput.email,
+      userType: user.userType,
+      profileImageURL: user.profileImageURL,
+      dateOfBirth: user.dateOfBirth,
       accessToken
     };
 
