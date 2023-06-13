@@ -1,16 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UpdateUserInput } from './dto/update-user.input';
 import { User } from './entities/user.entity';
+import { seedUsers } from './seed';
 
 @Injectable()
 export class UsersService {
 
   constructor(
-    @InjectRepository(User) private readonly usersRepository: Repository<User>,
-    private readonly configService: ConfigService
+    @InjectRepository(User) private readonly usersRepository: Repository<User>
   ) { }
 
   async findUserIdPasswordByEmail(email: string): Promise<User> {
@@ -27,11 +26,29 @@ export class UsersService {
   }
 
   async findUserIdByEmail(email: string): Promise<User> {
-    return await this.usersRepository.findOne({ where: { email }, select: { id: true } });
+    return this.usersRepository.findOne({ where: { email }, select: { id: true } });
   }
 
   async createUser(user: User) {
-    return await this.usersRepository.save(user);
+    return this.usersRepository.save(user);
+  }
+
+  async seed() {
+    const savedUsersPromise = [];
+    for (let i = 0; i < seedUsers.length; i++) {
+      const user = new User();
+      user.setId = undefined;
+      user.name = seedUsers[i].name;
+      user.email = seedUsers[i].email;
+      user.password = seedUsers[i].password;
+      user.userType = seedUsers[i].userType;
+      user.accountStatus = seedUsers[i].accountStatus;
+      savedUsersPromise.push(this.usersRepository.save(user));
+    }
+
+    for (let i = 0; i < savedUsersPromise.length; i++) {
+      await savedUsersPromise[i];
+    }
   }
 
   update(id: number, updateUserInput: UpdateUserInput) {
