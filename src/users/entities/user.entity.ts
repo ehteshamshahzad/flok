@@ -1,5 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { Column, Entity, Index } from 'typeorm';
+import { Column, Entity } from 'typeorm';
 import { BaseEntity } from '../../base-entity';
 import { AccountStatus } from './account-status.enum';
 import { UserType } from './user-type.enum';
@@ -10,7 +10,6 @@ export class User extends BaseEntity {
 
   @Column({ nullable: false, unique: true, length: 100 })
   @Field({ nullable: false, description: `User's email` })
-  @Index()
   email: string;
 
   @Column({ nullable: false, length: 50 })
