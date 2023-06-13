@@ -12,7 +12,7 @@ export const config: TypeOrmModuleOptions = {
     entities: ['dist/**/*.entity{.ts,.js}'],
     migrations: ['dist/db/migrations/*.js'],
     autoLoadEntities: true,
-    synchronize: true,
+    synchronize: false,
     ssl: {
         rejectUnauthorized: true
     }
