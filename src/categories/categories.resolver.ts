@@ -28,9 +28,9 @@ export class CategoriesResolver {
     return this.categoriesService.findOne(id);
   }
 
-  @Mutation(() => Category, { nullable: true })
-  seedCategories(@Args('seedCategories') id: string) {
-    return this.categoriesService.seed(id);
+  @Mutation(() => Category, { nullable: true, name: 'seedCategories' })
+  seedCategories() {
+    return this.categoriesService.seed();
   }
 
   @Mutation(() => Category)
