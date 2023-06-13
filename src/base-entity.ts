@@ -28,12 +28,12 @@ export class BaseEntity {
 
     @BeforeInsert()
     updateCreatedAt() {
-        this.createdAt = new Date()
+        this.createdAt = new Date();
     }
 
     @BeforeUpdate()
     updateUpdatedAt() {
-        this.updatedAt = new Date()
+        this.updatedAt = new Date();
     }
 
 }
