@@ -62,20 +62,33 @@ export class CategoriesService {
     return await this.categoriesRepository.findOne({ where: { id } });
   }
 
-  async seed(id: string) {
-    for (let i = 0; i < seedCategories.length; i++) {
-      seedCategories[i].setId = undefined;
-      await this.categoriesRepository.save(seedCategories[i]);
-    }
+  async seed() {
+    const savedCategoriesPromise: Promise<Category>[] = [];
 
-    return await this.categoriesRepository.find();
+    for (let i = 0; i < seedCategories.length; i++) {
+      const category = new Category();
+      category.setId = undefined;
+      category.nameDE = seedCategories[i].nameDE;
+      category.nameEN = seedCategories[i].nameEN;
+      category.nameFR = seedCategories[i].nameFR;
+      category.nameIT = seedCategories[i].nameIT;
+      savedCategoriesPromise.push(this.categoriesRepository.save(category));
+    }
+    for (let i = 0; i < savedCategoriesPromise.length; i++) {
+      await savedCategoriesPromise[i];
+    }
+    const categories = await this.categoriesRepository.find()
+    return categories;
   }
 
   update(id: number, updateCategoryInput: UpdateCategoryInput) {
     return `This action updates a #${id} category`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  async remove(id: number) {
+    const categories = await this.categoriesRepository.find();
+    await Promise.all(categories.map(x => this.categoriesRepository.delete(x.id)));
+    const categoriesLeft = await this.categoriesRepository.find();
+    return categoriesLeft;
   }
 }

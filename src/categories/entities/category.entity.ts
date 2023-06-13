@@ -6,8 +6,8 @@ import { Column, Entity } from 'typeorm';
 @ObjectType()
 export class Category extends BaseEntity {
 
-  @Field({ nullable: true, description: `Name in English` })
-  @Column({ nullable: true, unique: false, length: 60 })
+  @Field({ nullable: false, description: `Name in English` })
+  @Column({ nullable: false, unique: true, length: 60 })
   nameEN: string;
 
   @Field({ nullable: true, description: `Name in French` })
