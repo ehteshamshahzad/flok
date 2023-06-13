@@ -26,6 +26,11 @@ export class UsersResolver {
     return this.usersService.update(updateUserInput.id, updateUserInput);
   }
 
+  @Mutation(() => User, { nullable: true })
+  seedUsers(@Args('seedUsers') id: string) {
+    return this.usersService.seed();
+  }
+
   @Mutation(() => User)
   removeUser(@Args('id', { type: () => Int }) id: number) {
     return this.usersService.remove(id);
