@@ -96,7 +96,6 @@ export class AuthService {
     user.userType = registerUserInput.userType;
     user.email = registerUserInput.email;
     user.name = registerUserInput.name;
-    user.password = registerUserInput.password;
 
     user.password = hashFunction(registerUserInput.password, `${this.configService.get<string>('HASH_SECRET')}_${user.id}`);
 
