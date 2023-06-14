@@ -19,7 +19,13 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "serverless:dev": "rimraf dist && nest build && sls offline",
-    "serverless:beta": "rimraf dist && rimraf .serverless && nest build && serverless deploy --stage beta"
+    "serverless:beta": "rimraf dist && rimraf .serverless && nest build && serverless deploy --stage beta",
+    "typeorm": "npm run build && npx typeorm -d dist/db/data-source.js",
+    "typeorm:sync": "rimraf dist && npm run build && npx typeorm schema:sync -d dist/db/data-source.js",
+    "typeorm:drop": "rimraf dist && npm run build && npx typeorm schema:drop -d dist/db/data-source.js",
+    "migration:generate": "npm run typeorm -- migration:generate",
+    "migration:run": "npm run typeorm -- migration:run", 
+    "migration:revert": "npm run typeorm -- migration:revert"
   },
   "dependencies": {
     "@apollo/server": "^4.7.1",

@@ -42,7 +42,8 @@ package:
 
 functions:
   main:
-    handler: dist/serverless.handler
+    # handler: dist/serverless.handler
+    handler: dist/src/serverless.handler
     environment:
       NODE_ENV: production
       # https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/node-reusing-connections.html
