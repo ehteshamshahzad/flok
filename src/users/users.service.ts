@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import { hashFunction } from 'src/utils/hash-password';
 import { Repository } from 'typeorm';
 import { UpdateUserInput } from './dto/update-user.input';
 import { UserDto } from './dto/user.input';
+import { UserType } from './entities/user-type.enum';
 import { User } from './entities/user.entity';
 import { seedUsers } from './seed';
 
@@ -10,7 +13,8 @@ import { seedUsers } from './seed';
 export class UsersService {
 
   constructor(
-    @InjectRepository(User) private readonly usersRepository: Repository<User>
+    @InjectRepository(User) private readonly usersRepository: Repository<User>,
+    private readonly configService: ConfigService
   ) { }
 
   async findUserIdNameUserTypeProfileImageDoBPasswordByEmail(email: string): Promise<User> {
@@ -71,17 +75,24 @@ export class UsersService {
     const savedUsersPromise: Promise<User>[] = [];
     for (let i = 0; i < seedUsers.length; i++) {
       const user = new User();
-      user.setId = undefined;
+      user.setId = seedUsers[i].id;
       user.name = seedUsers[i].name;
       user.email = seedUsers[i].email;
-      user.password = seedUsers[i].password;
+      user.password = hashFunction(seedUsers[i].password, `${this.configService.get<string>('HASH_SECRET')}_${user.id}`);
       user.userType = seedUsers[i].userType;
       user.accountStatus = seedUsers[i].accountStatus;
       savedUsersPromise.push(this.usersRepository.save(user));
     }
 
+    const savedUsers: User[] = [];
     for (let i = 0; i < savedUsersPromise.length; i++) {
-      await savedUsersPromise[i];
+      savedUsers.push(await savedUsersPromise[i]);
     }
+
+    return savedUsers;
+  }
+
+  async findUserIdByIdUserType(id: string, userType: UserType) {
+    return this.usersRepository.findOne({ where: { id, userType }, select: { id: true } });
   }
 }

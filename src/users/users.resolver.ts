@@ -30,10 +30,10 @@ export class UsersResolver {
     return await this.usersService.findOne(user.id);
   }
 
-  // @Mutation(() => User, { nullable: true, name: 'seedUsers' })
-  // seedUsers() {
-  //   return this.usersService.seed();
-  // }
+  @Mutation(() => [User], { nullable: true, name: 'seedUsers' })
+  seedUsers() {
+    return this.usersService.seed();
+  }
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => UserDto, { name: 'updateUser' })

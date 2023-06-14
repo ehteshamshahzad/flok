@@ -1,5 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { Column, Entity } from 'typeorm';
+import { ProviderStaff } from 'src/providers/entities/provider-staff.entity';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../base-entity';
 import { AccountStatus } from './account-status.enum';
 import { UserType } from './user-type.enum';
@@ -39,5 +40,8 @@ export class User extends BaseEntity {
   @Column({ nullable: false, default: 'Unverified', length: 10 })
   @Field({ nullable: false, description: `User's account status: 'Active' | 'Deleted' | 'Suspended' | 'Unverified'` })
   accountStatus: AccountStatus;
+
+  @OneToMany(() => ProviderStaff, (providerStaff: ProviderStaff) => providerStaff.user)
+  providerStaff: ProviderStaff[];
 
 }

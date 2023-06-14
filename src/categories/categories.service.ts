@@ -63,22 +63,25 @@ export class CategoriesService {
   }
 
   async seed() {
+
     const savedCategoriesPromise: Promise<Category>[] = [];
 
     for (let i = 0; i < seedCategories.length; i++) {
       const category = new Category();
-      category.setId = undefined;
+      category.setId = seedCategories[i].id;
       category.nameDE = seedCategories[i].nameDE;
       category.nameEN = seedCategories[i].nameEN;
       category.nameFR = seedCategories[i].nameFR;
       category.nameIT = seedCategories[i].nameIT;
       savedCategoriesPromise.push(this.categoriesRepository.save(category));
     }
+
+    const savedCategories: Category[] = [];
     for (let i = 0; i < savedCategoriesPromise.length; i++) {
-      await savedCategoriesPromise[i];
+      savedCategories.push(await savedCategoriesPromise[i]);
     }
-    const categories = await this.categoriesRepository.find()
-    return categories;
+
+    return savedCategories;
   }
 
   update(id: number, updateCategoryInput: UpdateCategoryInput) {
