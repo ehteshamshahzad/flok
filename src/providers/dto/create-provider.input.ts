@@ -1,5 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { IsEmail, IsNumber, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsNumber, IsOptional, IsString, MinLength } from 'class-validator';
 
 @InputType()
 export class CreateProviderInput {
@@ -19,6 +19,7 @@ export class CreateProviderInput {
   email: string;
 
   @IsNumber()
-  @Field(() => Number, { description: 'Template number' })
+  @IsOptional()
+  @Field(() => Number, { description: 'Template number', nullable: true, defaultValue: 1 })
   pageTemplate: number;
 }
