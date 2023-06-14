@@ -1,6 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { BaseEntity } from 'src/base-entity';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
+import { ProviderStaff } from './provider-staff.entity';
 
 @Entity('provider')
 @ObjectType()
@@ -31,11 +32,13 @@ export class Provider extends BaseEntity {
   bannerKey: string;
 
   @Field({ nullable: true, description: `Page template: 1 | 2 | 3` })
-  @Column({ nullable: false, unique: false })
+  @Column({ nullable: false, unique: false, default: 1 })
   pageTemplate: number;
 
   @Field({ nullable: true, description: `Provider's email address` })
   @Column({ nullable: false, unique: true, length: 100 })
   email: string;
 
+  @OneToMany(() => ProviderStaff, (providerStaff: ProviderStaff) => providerStaff.provider)
+  providerStaff: ProviderStaff[];
 }

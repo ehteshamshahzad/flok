@@ -1,35 +1,48 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
-import { ProvidersService } from './providers.service';
-import { Provider } from './entities/provider.entity';
+import { UseGuards } from '@nestjs/common';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { CurrentUser } from 'src/auth/current-user.decorator';
+import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
+import { User } from 'src/users/entities/user.entity';
 import { CreateProviderInput } from './dto/create-provider.input';
+import { InviteStaffInput } from './dto/invite-staff.input';
+import { TerminateStaffInput } from './dto/terminate-staff.input';
 import { UpdateProviderInput } from './dto/update-provider.input';
+import { ProviderStaff } from './entities/provider-staff.entity';
+import { Provider } from './entities/provider.entity';
+import { ProvidersService } from './providers.service';
 
 @Resolver(() => Provider)
 export class ProvidersResolver {
-  constructor(private readonly providersService: ProvidersService) {}
+  constructor(private readonly providersService: ProvidersService) { }
 
-  @Mutation(() => Provider)
-  createProvider(@Args('createProviderInput') createProviderInput: CreateProviderInput) {
-    return this.providersService.create(createProviderInput);
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => Provider, { name: 'registerProvider' })
+  createProvider(@CurrentUser() user: User, @Args('createProviderInput') createProviderInput: CreateProviderInput) {
+    return this.providersService.create(user.id, createProviderInput);
   }
 
-  @Query(() => [Provider], { name: 'providers' })
-  findAll() {
-    return this.providersService.findAll();
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => ProviderStaff, { name: 'inviteStaff' })
+  inviteStaff(@CurrentUser() user: User, @Args('inviteStaff') inviteStaffInput: InviteStaffInput) {
+    return this.providersService.inviteStaff(user.id, inviteStaffInput);
   }
 
-  @Query(() => Provider, { name: 'provider' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => ProviderStaff, { name: 'terminateStaff' })
+  terminateStaff(@CurrentUser() user: User, @Args('terminateStaffInput') terminateStaffInput: TerminateStaffInput) {
+    return this.providersService.terminateStaff(user.id, terminateStaffInput);
+  }
+
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => Provider, { name: 'updateProvider' })
+  updateProvider(@CurrentUser() user: User, @Args('updateProviderInput') updateProviderInput: UpdateProviderInput) {
+    return this.providersService.update(user.id, updateProviderInput);
+  }
+
+
+  @Query(() => Provider, { name: 'provider', nullable: true })
+  findOne(@Args('id', { type: () => String }) id: string) {
     return this.providersService.findOne(id);
-  }
-
-  @Mutation(() => Provider)
-  updateProvider(@Args('updateProviderInput') updateProviderInput: UpdateProviderInput) {
-    return this.providersService.update(updateProviderInput.id, updateProviderInput);
-  }
-
-  @Mutation(() => Provider)
-  removeProvider(@Args('id', { type: () => Int }) id: number) {
-    return this.providersService.remove(id);
   }
 }
