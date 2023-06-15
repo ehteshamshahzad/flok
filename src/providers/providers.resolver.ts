@@ -33,13 +33,11 @@ export class ProvidersResolver {
     return this.providersService.terminateStaff(user.id, terminateStaffInput);
   }
 
-
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Provider, { name: 'updateProvider' })
   updateProvider(@CurrentUser() user: User, @Args('updateProviderInput') updateProviderInput: UpdateProviderInput) {
     return this.providersService.update(user.id, updateProviderInput);
   }
-
 
   @Query(() => Provider, { name: 'provider', nullable: true })
   findOne(@Args('id', { type: () => String }) id: string) {

@@ -38,7 +38,7 @@ export class User extends BaseEntity {
   dateOfBirth: Date;
 
   @Column({ nullable: false, default: 'Unverified', length: 10 })
-  @Field({ nullable: false, description: `User's account status: 'Active' | 'Deleted' | 'Suspended' | 'Unverified'` })
+  @Field(() => AccountStatus, { nullable: false, description: `User's account status: 'Active' | 'Deleted' | 'Suspended' | 'Unverified'` })
   accountStatus: AccountStatus;
 
   @OneToMany(() => ProviderStaff, (providerStaff: ProviderStaff) => providerStaff.user)

@@ -10,6 +10,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { config } from './orm.config';
 import { ProvidersModule } from './providers/providers.module';
 import { UsersModule } from './users/users.module';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { UsersModule } from './users/users.module';
     AuthModule,
     CategoriesModule,
     ProvidersModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

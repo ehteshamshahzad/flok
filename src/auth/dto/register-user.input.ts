@@ -7,31 +7,31 @@ import { UserType } from 'src/users/entities/user-type.enum';
 export class RegisterUserInput {
 
   @IsEmail()
-  @Field({ description: 'User email' })
+  @Field(() => String, { description: 'User email' })
   @Transform(({ value }) => typeof value === 'string' ? value.toLowerCase() : value)
   email: string;
 
   @IsString()
   @IsNotEmpty()
-  @Field({ description: 'User name' })
+  @Field(() => String, { description: 'User name' })
   @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
   name: string;
 
   @IsString()
   @MinLength(8)
-  @Field({ description: 'User password' })
+  @Field(() => String, { description: 'User password' })
   @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
   password: string;
 
   @IsString()
   @MinLength(8)
-  @Field({ description: 'User confirmPassword' })
+  @Field(() => String, { description: 'User confirmPassword' })
   @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
   confirmPassword: string;
 
   @IsNotEmpty()
   @IsEnum(UserType)
-  @Field({ description: 'User type: "Parent" | "Admin" | "Provider"' })
+  @Field(() => UserType, { description: 'User type: "Parent" | "Admin" | "Provider"' })
   userType: UserType;
 
 }
