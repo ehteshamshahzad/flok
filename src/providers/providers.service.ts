@@ -165,4 +165,24 @@ export class ProvidersService {
     return await this.providersRepository.findOne({ where: { id: updateProviderInput.id } });
   }
 
+  async findProviderStaffIdByUserIdProviderIdEmployeedOrOwner(userId: string, providerId: string) {
+    return await this.providerStaffRepository.findOne({
+      where: [
+        {
+          userId,
+          providerId,
+          employmentStatus: EmploymentStatus.EMPLOYEED
+        },
+        {
+          userId,
+          providerId,
+          employmentStatus: EmploymentStatus.OWNER
+        }
+      ],
+      select: {
+        id: true
+      }
+    });
+  }
+
 }

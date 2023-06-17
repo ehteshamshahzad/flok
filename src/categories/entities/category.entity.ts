@@ -1,6 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { BaseEntity } from 'src/base-entity';
-import { Column, Entity } from 'typeorm';
+import { EventCategory } from 'src/events/entities/event-category.entity';
+import { Column, Entity, OneToMany } from 'typeorm';
 
 @Entity('category')
 @ObjectType()
@@ -21,4 +22,7 @@ export class Category extends BaseEntity {
   @Field({ nullable: true, description: `Name in Italian` })
   @Column({ nullable: true, unique: false, length: 60 })
   nameIT: string;
+
+  @OneToMany(() => EventCategory, (eventCategorys: EventCategory) => eventCategorys.category)
+  eventCategorys: EventCategory[];
 }

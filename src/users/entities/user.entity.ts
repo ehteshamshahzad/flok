@@ -1,4 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
+import { FlaggedInappropriate } from 'src/events/entities/flagged-inappropriate.entity';
 import { ProviderStaff } from 'src/providers/entities/provider-staff.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../base-entity';
@@ -41,7 +42,14 @@ export class User extends BaseEntity {
   @Field(() => AccountStatus, { nullable: false, description: `User's account status: 'Active' | 'Deleted' | 'Suspended' | 'Unverified'` })
   accountStatus: AccountStatus;
 
+  @Column({ nullable: true, unique: false })
+  @Field(() => Number, { description: 'User contact number' })
+  contactNumber: number;
+
   @OneToMany(() => ProviderStaff, (providerStaff: ProviderStaff) => providerStaff.user)
   providerStaff: ProviderStaff[];
+
+  @OneToMany(() => FlaggedInappropriate, (flags: FlaggedInappropriate) => flags.user)
+  flags: FlaggedInappropriate[];
 
 }

@@ -4,13 +4,14 @@ import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
+import { AppResolver } from './app.resolver';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { CategoriesModule } from './categories/categories.module';
+import { EventsModule } from './events/events.module';
 import { config } from './orm.config';
 import { ProvidersModule } from './providers/providers.module';
 import { UsersModule } from './users/users.module';
-import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -54,6 +55,6 @@ import { EventsModule } from './events/events.module';
     EventsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppResolver, AppService],
 })
 export class AppModule { }

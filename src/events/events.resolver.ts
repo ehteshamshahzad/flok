@@ -1,16 +1,21 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
-import { EventsService } from './events.service';
-import { Event } from './entities/event.entity';
+import { UseGuards } from '@nestjs/common';
+import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { CurrentUser } from 'src/auth/current-user.decorator';
+import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
+import { User } from 'src/users/entities/user.entity';
 import { CreateEventInput } from './dto/create-event.input';
 import { UpdateEventInput } from './dto/update-event.input';
+import { Event } from './entities/event.entity';
+import { EventsService } from './events.service';
 
 @Resolver(() => Event)
 export class EventsResolver {
-  constructor(private readonly eventsService: EventsService) {}
+  constructor(private readonly eventsService: EventsService) { }
 
-  @Mutation(() => Event)
-  createEvent(@Args('createEventInput') createEventInput: CreateEventInput) {
-    return this.eventsService.create(createEventInput);
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => Event, { name: 'createEvent' })
+  createEvent(@CurrentUser() user: User, @Args('createEventInput') createEventInput: CreateEventInput) {
+    return this.eventsService.createEvent(user.id, createEventInput);
   }
 
   @Query(() => [Event], { name: 'events' })
