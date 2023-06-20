@@ -2,9 +2,12 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProvidersService } from 'src/providers/providers.service';
+import { UserType } from 'src/users/entities/user-type.enum';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import { CreateEventInput, EventDetailsInput } from './dto/create-event.input';
+import { EventReviewInput } from './dto/event-review.input';
+import { FlaggedInappropriateInput } from './dto/flagged-inappropriate.input';
 import { SearchEventInput } from './dto/search-event.input';
 import { UpdateEventInput } from './dto/update-event.input';
 import { EventCategory } from './entities/event-category.entity';
@@ -27,7 +30,7 @@ export class EventsService {
     @InjectRepository(RecurringEvent) private readonly recurringEventsRepository: Repository<RecurringEvent>,
     @InjectRepository(EventReview) private readonly eventReviewsRepository: Repository<EventReview>,
     @InjectRepository(EventWaitingList) private readonly eventWaitingListsRepository: Repository<EventWaitingList>,
-    @InjectRepository(FlaggedInappropriate) private readonly flagsRepository: Repository<FlaggedInappropriate>,
+    @InjectRepository(FlaggedInappropriate) private readonly flaggedInappropriateRepository: Repository<FlaggedInappropriate>,
     private readonly usersService: UsersService,
     private readonly providerService: ProvidersService,
     private readonly configService: ConfigService
@@ -135,6 +138,7 @@ export class EventsService {
   }
 
   /**
+   * TODO: Save multiple events first
    * Conditions: 
    * 1. Date range
    * 2. Longitude and latitude
@@ -146,16 +150,123 @@ export class EventsService {
    * * Pagination
    */
   async findByConditions(searchEventInput: SearchEventInput) {
-
     return;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} event`;
+  async findOne(id: string) {
+    return await this.eventsRepository.findOne({ where: { id } });
   }
 
-  update(id: number, updateEventInput: UpdateEventInput) {
-    return `This action updates a #${id} event`;
+  // Pending
+  async update(userId: string, updateEventInput: UpdateEventInput) {
+
+    const event = await this.eventsRepository.findOne({ where: { id: updateEventInput.id } });
+
+    if (!event) {
+      throw new HttpException({
+        statusCode: HttpStatus.NOT_FOUND,
+        error: 'Not found',
+        message: [
+          'Event not found'
+        ]
+      }, HttpStatus.NOT_FOUND);
+    }
+
+    return event;
+  }
+
+  /**
+   * Requirements:
+   * 1. User of type parent who is flagging the event
+   * 2. Check if event exists
+   * 3. 
+   */
+  async flagEvent(userId: string, flaggedInappropriateInput: FlaggedInappropriateInput) {
+
+    const eventPromise = this.eventsRepository.findOne({ where: { id: flaggedInappropriateInput.eventId }, select: { id: true } });
+    const user = await this.usersService.findUserIdByIdUserType(userId, UserType.PARENT);
+    if (!user) {
+      throw new HttpException({
+        statusCode: HttpStatus.NOT_FOUND,
+        error: 'Not found',
+        message: [
+          'Parent not found'
+        ]
+      }, HttpStatus.NOT_FOUND);
+    }
+
+    const event = await eventPromise;
+    if (!event) {
+      throw new HttpException({
+        statusCode: HttpStatus.NOT_FOUND,
+        error: 'Not found',
+        message: [
+          'Event not found'
+        ]
+      }, HttpStatus.NOT_FOUND);
+    }
+
+    const flaggedInappropriate = new FlaggedInappropriate();
+    flaggedInappropriate.setId = undefined;
+    flaggedInappropriate.eventId = flaggedInappropriateInput.eventId;
+    flaggedInappropriate.userId = userId;
+    flaggedInappropriate.description = flaggedInappropriateInput.description;
+
+    return await this.flaggedInappropriateRepository.save(flaggedInappropriate);
+
+  }
+
+  async createEventReview(userId: string, eventReviewInput: EventReviewInput) {
+
+    const eventPromise = this.eventsRepository.findOne({ where: { id: eventReviewInput.eventId }, select: { id: true } });
+    const user = await this.usersService.findUserIdByIdUserType(userId, UserType.PARENT);
+
+    if (!user) {
+      throw new HttpException({
+        statusCode: HttpStatus.NOT_FOUND,
+        error: 'Not found',
+        message: [
+          'Parent not found'
+        ]
+      }, HttpStatus.NOT_FOUND);
+    }
+
+    const event = await eventPromise;
+    if (!event) {
+      throw new HttpException({
+        statusCode: HttpStatus.NOT_FOUND,
+        error: 'Not found',
+        message: [
+          'Event not found'
+        ]
+      }, HttpStatus.NOT_FOUND);
+    }
+
+    const eventReview = new EventReview();
+    eventReview.setId = undefined;
+    eventReview.eventId = eventReviewInput.eventId;
+    eventReview.userId = userId;
+    eventReview.rating = eventReviewInput.rating;
+    eventReview.review = eventReviewInput.review;
+
+    return await this.eventReviewsRepository.save(eventReview);
+  }
+
+  async getEventReviews(userId: string, providerId: string, eventId: string) {
+
+    const provider = await this.providerService.findProviderStaffIdByUserIdProviderIdEmployeedOrOwner(userId, providerId);
+
+    if (!provider) {
+      throw new HttpException({
+        statusCode: HttpStatus.NOT_FOUND,
+        error: 'Not found',
+        message: [
+          'Provider not found'
+        ]
+      }, HttpStatus.NOT_FOUND);
+    }
+
+    return await this.eventReviewsRepository.find({ where: { eventId } });
   }
 
   remove(id: number) {

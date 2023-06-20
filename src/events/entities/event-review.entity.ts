@@ -18,7 +18,7 @@ export class EventReview extends BaseEntity {
     userId: string;
     user: User;
 
-    @Column({ nullable: false, unique: false, })
+    @Column({ nullable: false, unique: false })
     @Field(() => Number, { description: 'Event rating' })
     rating: number;
 

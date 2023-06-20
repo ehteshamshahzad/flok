@@ -19,6 +19,6 @@ export class FlaggedInappropriate extends BaseEntity {
     user: User;
 
     @Column({ nullable: true, unique: false })
-    @Field(() => String, { description: 'Some description of why a user is flagging the event' })
+    @Field(() => String, { description: 'Some description of why a user is flagging the event', nullable: true })
     description: string;
 }
