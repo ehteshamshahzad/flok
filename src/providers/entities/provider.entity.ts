@@ -39,6 +39,7 @@ export class Provider extends BaseEntity {
   @Column({ nullable: false, unique: true, length: 100 })
   email: string;
 
+  @Field(() => [ProviderStaff], { nullable: true, description: `List of staff belonging to a provider` })
   @OneToMany(() => ProviderStaff, (providerStaff: ProviderStaff) => providerStaff.provider)
   providerStaff: ProviderStaff[];
 }

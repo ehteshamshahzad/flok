@@ -1,4 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
+import { EventReview } from 'src/events/entities/event-review.entity';
+import { EventWaitingList } from 'src/events/entities/event-waiting-list.entity';
 import { FlaggedInappropriate } from 'src/events/entities/flagged-inappropriate.entity';
 import { ProviderStaff } from 'src/providers/entities/provider-staff.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
@@ -43,7 +45,7 @@ export class User extends BaseEntity {
   accountStatus: AccountStatus;
 
   @Column({ nullable: true, unique: false })
-  @Field(() => Number, { description: 'User contact number' })
+  @Field(() => Number, { description: 'User contact number', nullable: true })
   contactNumber: number;
 
   @OneToMany(() => ProviderStaff, (providerStaff: ProviderStaff) => providerStaff.user)
@@ -51,5 +53,11 @@ export class User extends BaseEntity {
 
   @OneToMany(() => FlaggedInappropriate, (flags: FlaggedInappropriate) => flags.user)
   flags: FlaggedInappropriate[];
+
+  @OneToMany(() => EventWaitingList, (eventWaitingList: EventWaitingList) => eventWaitingList.user)
+  eventWaitingList: EventWaitingList[];
+
+  @OneToMany(() => EventReview, (eventReviews: EventReview) => eventReviews.user)
+  eventReviews: EventReview[];
 
 }

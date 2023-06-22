@@ -1,6 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { BaseEntity } from 'src/base-entity';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { Event } from './event.entity';
 
 @Entity('event-picture')
@@ -10,6 +10,10 @@ export class EventPicture extends BaseEntity {
     @Column({ nullable: false, unique: false, length: 36 })
     @Field(() => Date, { description: 'Date and time of when the event will take place' })
     eventId: string;
+
+    @ManyToOne(() => Event, (event: Event) => event.eventPictures, { createForeignKeyConstraints: false })
+    @JoinColumn({ name: 'eventId' })
+    @Field({ nullable: true })
     event: Event;
 
     @Column({ nullable: false, unique: false })

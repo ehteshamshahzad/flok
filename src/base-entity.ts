@@ -11,11 +11,11 @@ export class BaseEntity {
     id: string;
 
     @CreateDateColumn({ nullable: true })
-    @Field({ nullable: false, description: 'Created at Date' })
+    @Field({ nullable: true, description: 'Created at Date' })
     createdAt: Date;
 
     @CreateDateColumn({ nullable: true })
-    @Field({ nullable: false, description: 'Updated at Date' })
+    @Field({ nullable: true, description: 'Updated at Date' })
     updatedAt: Date;
 
     set setId(id: string) {

@@ -147,7 +147,17 @@ export class ProvidersService {
     return await this.providersRepository.findOne({ where: { id } });
   }
 
+  async findMyProviders(userId: string) {
+    const providerStaffRequest = await this.providerStaffRepository.find({ where: { userId }, relations: { provider: true } });
+    return providerStaffRequest;
+  }
+
   async update(userId: string, updateProviderInput: UpdateProviderInput) {
+
+    const a = new Map();
+
+    const aa = a.get('');
+    a.values()
 
     const providerStaff = await this.providerStaffRepository.findOne({ where: { providerId: updateProviderInput.id, userId } });
 
@@ -179,9 +189,7 @@ export class ProvidersService {
           employmentStatus: EmploymentStatus.OWNER
         }
       ],
-      select: {
-        id: true
-      }
+      select: { id: true }
     });
   }
 

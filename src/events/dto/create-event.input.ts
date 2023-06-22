@@ -1,6 +1,6 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { Type } from 'class-transformer';
-import { ArrayMinSize, IsArray, IsDataURI, IsEnum, IsNotEmpty, IsNumber, IsString, IsUUID, MaxLength, Min, ValidateNested } from 'class-validator';
+import { ArrayMinSize, IsArray, IsDate, IsEnum, IsNotEmpty, IsNumber, IsString, IsUUID, MaxLength, Min, ValidateNested } from 'class-validator';
 import { Language } from 'src/language.enum';
 import { EventStatus } from '../entities/event-status.enum';
 
@@ -42,7 +42,7 @@ export class CreateEventInput {
   @Field(() => [String], { description: 'Ids of categories an event belongs to' })
   categoryIds: string[];
 
-  @IsDataURI()
+  @IsDate()
   @IsNotEmpty()
   registrationDeadline: Date;
 
@@ -90,6 +90,6 @@ export class EventDetailsInput {
 
   @IsEnum(Language)
   @IsNotEmpty()
-  @Field(() => String, { description: 'Language support' })
+  @Field(() => Language, { description: 'Language support' })
   language: Language;
 }

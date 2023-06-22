@@ -24,5 +24,5 @@ export class Category extends BaseEntity {
   nameIT: string;
 
   @OneToMany(() => EventCategory, (eventCategorys: EventCategory) => eventCategorys.category)
-  eventCategorys: EventCategory[];
+  eventCategories: EventCategory[];
 }

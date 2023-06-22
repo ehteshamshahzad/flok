@@ -1,7 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { BaseEntity } from 'src/base-entity';
 import { Language } from 'src/language.enum';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { Event } from './event.entity';
 
 @Entity('event-multi-language')
@@ -11,6 +11,10 @@ export class EventMultiLangauge extends BaseEntity {
     @Column({ nullable: false, unique: false, length: 36 })
     @Field(() => String, { description: 'Id of the asscoaited Event' })
     eventId: string;
+
+    @ManyToOne(() => Event, (event: Event) => event.eventMultiLanguages, { createForeignKeyConstraints: false })
+    @JoinColumn({ name: 'eventId' })
+    @Field({ nullable: true })
     event: Event;
 
     @Column({ nullable: false, unique: false, length: 100 })

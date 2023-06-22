@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { CreateEventInput, EventDetailsInput } from './dto/create-event.input';
 import { EventReviewInput } from './dto/event-review.input';
 import { FlaggedInappropriateInput } from './dto/flagged-inappropriate.input';
+import { RemoveEventInput } from './dto/remove-event.input';
 import { SearchEventInput } from './dto/search-event.input';
 import { UpdateEventInput } from './dto/update-event.input';
 import { EventCategory } from './entities/event-category.entity';
@@ -15,6 +16,7 @@ import { EventMultiLangauge } from './entities/event-multi-langauge.entity';
 import { EventPicture } from './entities/event-picrture.entity';
 import { RecurringEvent } from './entities/event-recuring-until.entity';
 import { EventReview } from './entities/event-review.entity';
+import { EventStatus } from './entities/event-status.enum';
 import { EventWaitingList } from './entities/event-waiting-list.entity';
 import { Event } from './entities/event.entity';
 import { FlaggedInappropriate } from './entities/flagged-inappropriate.entity';
@@ -78,17 +80,9 @@ export class EventsService {
       this.assigningRecurringEventDates(savedEvent.id, createEventInput.recurringDates)
     ]);
 
-    for (let i = 0; i < eventMultiLangauges.length; i++) {
-      event.eventMultiLanguages.push(await eventMultiLangauges[i]);
-    }
-
-    for (let i = 0; i < eventCategories.length; i++) {
-      event.eventCategorys.push(await eventCategories[i]);
-    }
-
-    for (let i = 0; i < recurringEvents.length; i++) {
-      event.recurringEvents.push(await recurringEvents[i]);
-    }
+    event.eventMultiLanguages = eventMultiLangauges;
+    event.eventCategories = eventCategories;
+    event.recurringEvents = recurringEvents;
 
     return event;
   }
@@ -103,9 +97,16 @@ export class EventsService {
       eventMultiLangauge.description = eventDetails[i].description;
       eventMultiLangauge.eventId = savedEventId;
       eventMultiLangauge.language = eventDetails[i].language;
+
       eventMultiLangaugePromises.push(this.eventMultiLangaugesRepository.save(eventMultiLangauge));
     }
-    return eventMultiLangaugePromises;
+
+    const eventMultiLangauge: EventMultiLangauge[] = [];
+    for (let i = 0; i < eventMultiLangaugePromises.length; i++) {
+      eventMultiLangauge.push(await eventMultiLangaugePromises[i]);
+    }
+
+    return eventMultiLangauge;
   }
 
   async createEventCategories(savedEventId: string, categoryIds: string[]) {
@@ -117,11 +118,19 @@ export class EventsService {
       eventCategory.eventId = savedEventId;
       eventCategoryPromises.push(this.eventCategoriesRepository.save(eventCategory));
     }
-    return eventCategoryPromises;
+    const eventCategory: EventCategory[] = [];
+
+    for (let i = 0; i < eventCategoryPromises.length; i++) {
+      eventCategory.push(await eventCategoryPromises[i]);
+    }
+
+    return eventCategory;
   }
 
   async assigningRecurringEventDates(savedEventId: string, recurringDates: Date[]) {
-    const recurringEventPromises: Promise<RecurringEvent>[] = []
+
+    const recurringEventPromises: Promise<RecurringEvent>[] = [];
+
     for (let i = 0; i < recurringDates.length; i++) {
       const recurringEvent = new RecurringEvent();
       recurringEvent.setId = undefined;
@@ -129,7 +138,13 @@ export class EventsService {
       recurringEvent.eventId = savedEventId;
       recurringEventPromises.push(this.recurringEventsRepository.save(recurringEvent));
     }
-    return recurringEventPromises;
+
+    const recurringEvent: RecurringEvent[] = [];
+    for (let i = 0; i < recurringEventPromises.length; i++) {
+      recurringEvent.push(await recurringEventPromises[i]);
+    }
+
+    return recurringEvent;
   }
 
   async findAll() {
@@ -159,6 +174,8 @@ export class EventsService {
 
   // Pending
   async update(userId: string, updateEventInput: UpdateEventInput) {
+
+    const provider = await this.providerService.findProviderStaffIdByUserIdProviderIdEmployeedOrOwner(userId, updateEventInput.providerId);
 
     const event = await this.eventsRepository.findOne({ where: { id: updateEventInput.id } });
 
@@ -254,7 +271,10 @@ export class EventsService {
 
   async getEventReviews(userId: string, providerId: string, eventId: string) {
 
-    const provider = await this.providerService.findProviderStaffIdByUserIdProviderIdEmployeedOrOwner(userId, providerId);
+    const [provider, reviews] = await Promise.all([
+      this.providerService.findProviderStaffIdByUserIdProviderIdEmployeedOrOwner(userId, providerId),
+      this.eventReviewsRepository.find({ where: { eventId } })
+    ]);
 
     if (!provider) {
       throw new HttpException({
@@ -266,10 +286,27 @@ export class EventsService {
       }, HttpStatus.NOT_FOUND);
     }
 
-    return await this.eventReviewsRepository.find({ where: { eventId } });
+    return reviews;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} event`;
+  async remove(userId: string, removeEventInput: RemoveEventInput) {
+
+    const [provider, event] = await Promise.all([
+      this.providerService.findProviderStaffIdByUserIdProviderIdEmployeedOrOwner(userId, removeEventInput.providerId),
+      this.eventsRepository.findOne({ where: { id: removeEventInput.eventId }, select: { id: true, status: true } })
+    ]);
+
+    event.status = EventStatus.DELETED;
+    if (!provider) {
+      throw new HttpException({
+        statusCode: HttpStatus.NOT_FOUND,
+        error: 'Not found',
+        message: [
+          'Provider not found'
+        ]
+      }, HttpStatus.NOT_FOUND);
+    }
+
+    return;
   }
 }

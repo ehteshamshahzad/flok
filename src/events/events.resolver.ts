@@ -1,10 +1,11 @@
 import { UseGuards } from '@nestjs/common';
-import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CurrentUser } from 'src/auth/current-user.decorator';
 import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
 import { User } from 'src/users/entities/user.entity';
 import { CreateEventInput } from './dto/create-event.input';
 import { FlaggedInappropriateInput } from './dto/flagged-inappropriate.input';
+import { RemoveEventInput } from './dto/remove-event.input';
 import { UpdateEventInput } from './dto/update-event.input';
 import { Event } from './entities/event.entity';
 import { FlaggedInappropriate } from './entities/flagged-inappropriate.entity';
@@ -42,8 +43,9 @@ export class EventsResolver {
     return this.eventsService.flagEvent(user.id, flaggedInappropriateInput);
   }
 
-  @Mutation(() => Event)
-  removeEvent(@Args('id', { type: () => Int }) id: number) {
-    return this.eventsService.remove(id);
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => Event, { nullable: true })
+  removeEvent(@CurrentUser() user: User, @Args('removeEventInput') removeEventInput: RemoveEventInput) {
+    return this.eventsService.remove(user.id, removeEventInput);
   }
 }

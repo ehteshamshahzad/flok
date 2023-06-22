@@ -43,4 +43,10 @@ export class ProvidersResolver {
   findOne(@Args('id', { type: () => String }) id: string) {
     return this.providersService.findOne(id);
   }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => [ProviderStaff], { name: 'findMyProviders', nullable: true })
+  findMyProviders(@CurrentUser() user: User) {
+    return this.providersService.findMyProviders(user.id);
+  }
 }

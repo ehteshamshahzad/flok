@@ -34,5 +34,5 @@ export const seedUsers = [
         password: '$*Kz2%5#4T8m',
         userType: UserType.ADMIN,
         accountStatus: AccountStatus.ACTIVE
-    },
+    }
 ] as User[];

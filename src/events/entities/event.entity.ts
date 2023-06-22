@@ -78,23 +78,30 @@ export class Event extends BaseEntity {
   // categoryId: string;
 
   @OneToMany(() => EventPicture, (eventPictures: EventPicture) => eventPictures.event)
+  @Field(() => [EventPicture], { description: 'List of event pictures' })
   eventPictures: EventPicture[];
 
   @OneToMany(() => EventMultiLangauge, (eventMultiLangauges: EventMultiLangauge) => eventMultiLangauges.event)
+  @Field(() => [EventMultiLangauge], { description: 'List of event details in different languages' })
   eventMultiLanguages: EventMultiLangauge[];
 
   @OneToMany(() => EventReview, (eventReviews: EventReview) => eventReviews.event)
+  @Field(() => [EventReview], { nullable: true, description: 'Event reviews' })
   eventReviews: EventReview[];
 
   @OneToMany(() => EventWaitingList, (eventWaitingList: EventWaitingList) => eventWaitingList.event)
+  @Field(() => [EventWaitingList], { nullable: true, description: 'Waiting list of an event' })
   eventWaitingLists: EventWaitingList[];
 
   @OneToMany(() => FlaggedInappropriate, (flags: FlaggedInappropriate) => flags.event)
+  @Field(() => [FlaggedInappropriate], { nullable: true, description: 'Complaints against an event' })
   flags: FlaggedInappropriate[];
 
   @OneToMany(() => RecurringEvent, (recurringEvents: RecurringEvent) => recurringEvents.event)
+  @Field(() => [RecurringEvent], { description: 'Event recurring date' })
   recurringEvents: RecurringEvent[];
 
-  @OneToMany(() => EventCategory, (eventCategorys: EventCategory) => eventCategorys.event)
-  eventCategorys: EventCategory[];
+  @OneToMany(() => EventCategory, (eventCategories: EventCategory) => eventCategories.event)
+  @Field(() => [EventCategory], { description: 'List of categories an event belongs to' })
+  eventCategories: EventCategory[];
 }
