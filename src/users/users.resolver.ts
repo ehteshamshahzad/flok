@@ -41,5 +41,4 @@ export class UsersResolver {
     return await this.usersService.updateUser(user.id, updateUserInput);
   }
 
-
 }
