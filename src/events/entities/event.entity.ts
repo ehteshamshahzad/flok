@@ -15,20 +15,10 @@ import { FlaggedInappropriate } from './flagged-inappropriate.entity';
 @ObjectType()
 export class Event extends BaseEntity {
 
-  // @Column({ nullable: false, unique: false })
-  // @Field(() => Date, { description: 'Date and time of when the event will take place' })
-  // dateTime: Date;
-
   @Column({ nullable: false, unique: false, length: 36 })
   @Field(() => String, { description: 'Id of Provider who is hosting this event' })
   providerId: string;
   provider: Provider;
-
-  // @Field(() => String, { description: 'Currency' })
-  // currency:string;
-
-  // @Field(() => String, { description: 'Price of the ticket' })
-  // price:number;
 
   @Column({ nullable: true })
   @Field(() => String, { description: 'Banner Image URL', nullable: true })
@@ -58,13 +48,6 @@ export class Event extends BaseEntity {
   @Field(() => String, { description: 'Maximum age allowed' })
   maxAge: number;
 
-  // @Field(() => String, { description: 'Total number of capacity for an event' })
-  // capacity: number;
-
-  // @Column({ nullable: false, unique: false })
-  // @Field(() => String, { description: '', nullable: true })
-  // recurringUntil: Date;
-
   @Column({ nullable: false, unique: false })
   @Field(() => String, { description: 'Last date to register for a given event' })
   registrationDeadline: Date;
@@ -73,12 +56,8 @@ export class Event extends BaseEntity {
   @Field(() => String, { description: 'Current status of the event: "Draft" | "Published" | "Archive" | "Private" | "Deleted"' })
   status: EventStatus;
 
-  // @Column({ nullable: false, unique: false, length: 36 })
-  // @Field(() => String, { description: 'Id of the category said event belongs to' })
-  // categoryId: string;
-
   @OneToMany(() => EventPicture, (eventPictures: EventPicture) => eventPictures.event)
-  @Field(() => [EventPicture], { description: 'List of event pictures' })
+  @Field(() => [EventPicture], { nullable: true, description: 'List of event pictures' })
   eventPictures: EventPicture[];
 
   @OneToMany(() => EventMultiLangauge, (eventMultiLangauges: EventMultiLangauge) => eventMultiLangauges.event)
