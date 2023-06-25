@@ -4,17 +4,6 @@ import { ArrayMinSize, IsArray, IsDate, IsEnum, IsNotEmpty, IsNumber, IsString, 
 import { Language } from 'src/language.enum';
 import { EventStatus } from '../entities/event-status.enum';
 
-
-/**
- * Required arguments
- * 1. Event title and description in different languages
- * 2. Recurring time
- * 3. ProviderID
- * 4. Event location, logitude and latitude
- * 5. Minimum and maximum age
- * 6. Registration deadline
- * 7. CategoryIds
- */
 @InputType()
 export class CreateEventInput {
 
