@@ -22,4 +22,7 @@ export class UserDto {
     @Field(() => String, { nullable: true })
     dateOfBirth: Date;
 
+    @Field(() => String, { nullable: true })
+    providerStaffId?: string;
+
 }

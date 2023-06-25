@@ -3,7 +3,7 @@ import { EventReview } from 'src/events/entities/event-review.entity';
 import { EventWaitingList } from 'src/events/entities/event-waiting-list.entity';
 import { FlaggedInappropriate } from 'src/events/entities/flagged-inappropriate.entity';
 import { ProviderStaff } from 'src/providers/entities/provider-staff.entity';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { BaseEntity } from '../../base-entity';
 import { AccountStatus } from './account-status.enum';
 import { UserType } from './user-type.enum';
@@ -48,8 +48,14 @@ export class User extends BaseEntity {
   @Field(() => Number, { description: 'User contact number', nullable: true })
   contactNumber: number;
 
-  @OneToMany(() => ProviderStaff, (providerStaff: ProviderStaff) => providerStaff.user)
-  providerStaff: ProviderStaff[];
+  @Field(() => String, { description: 'Provider ID', nullable: true })
+  @Column({ nullable: true, unique: false, length: 36 })
+  providerStaffId: string;
+
+  @Field(() => ProviderStaff, { description: 'Provider', nullable: true })
+  @OneToOne(() => ProviderStaff, (providerStaff: ProviderStaff) => providerStaff.user, { createForeignKeyConstraints: false })
+  @JoinColumn({ name: 'providerStaffId' })
+  providerStaff: ProviderStaff;
 
   @OneToMany(() => FlaggedInappropriate, (flags: FlaggedInappropriate) => flags.user)
   flags: FlaggedInappropriate[];

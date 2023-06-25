@@ -45,8 +45,8 @@ export class ProvidersResolver {
   }
 
   @UseGuards(GqlAuthGuard)
-  @Query(() => [ProviderStaff], { name: 'findMyProviders', nullable: true })
+  @Query(() => Provider, { name: 'findMyProvider', nullable: true })
   findMyProviders(@CurrentUser() user: User) {
-    return this.providersService.findMyProviders(user.id);
+    return this.providersService.findMyProvider(user.id);
   }
 }

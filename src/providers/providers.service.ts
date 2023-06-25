@@ -53,7 +53,10 @@ export class ProvidersService {
     providerStaff.providerId = provider.id;
     providerStaff.userId = userId;
 
+    user.providerStaffId = providerStaff.id;
+
     await this.providerStaffRepository.save(providerStaff);
+    await this.usersService.updateUserProviderStaff(userId, providerStaff.id);
 
     return savedProvider;
 
@@ -147,9 +150,21 @@ export class ProvidersService {
     return await this.providersRepository.findOne({ where: { id } });
   }
 
-  async findMyProviders(userId: string) {
-    const providerStaffRequest = await this.providerStaffRepository.find({ where: { userId }, relations: { provider: true } });
-    return providerStaffRequest;
+  async findMyProvider(userId: string) {
+    const providerStaffRequest = await this.providerStaffRepository.findOne({
+      where: [
+        {
+          userId,
+          employmentStatus: EmploymentStatus.OWNER
+        },
+        {
+          userId,
+          employmentStatus: EmploymentStatus.EMPLOYEED
+        }
+      ],
+      relations: { provider: true }
+    });
+    return providerStaffRequest.provider;
   }
 
   async update(userId: string, updateProviderInput: UpdateProviderInput) {
@@ -175,21 +190,35 @@ export class ProvidersService {
     return await this.providersRepository.findOne({ where: { id: updateProviderInput.id } });
   }
 
-  async findProviderStaffIdByUserIdProviderIdEmployeedOrOwner(userId: string, providerId: string) {
+  async findProviderStaffIdProviderIdByUserIdEmployeedOrOwner(userId: string): Promise<ProviderStaff> {
     return await this.providerStaffRepository.findOne({
       where: [
         {
           userId,
-          providerId,
           employmentStatus: EmploymentStatus.EMPLOYEED
         },
         {
           userId,
-          providerId,
           employmentStatus: EmploymentStatus.OWNER
         }
       ],
-      select: { id: true }
+      select: { id: true, providerId: true }
+    });
+  }
+
+  async findProviderStaffProviderIdByUserIdEmployeedOrOwner(userId: string): Promise<ProviderStaff> {
+    return await this.providerStaffRepository.findOne({
+      where: [
+        {
+          userId,
+          employmentStatus: EmploymentStatus.EMPLOYEED
+        },
+        {
+          userId,
+          employmentStatus: EmploymentStatus.OWNER
+        }
+      ],
+      select: { providerId: true }
     });
   }
 

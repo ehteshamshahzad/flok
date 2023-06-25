@@ -21,9 +21,10 @@ export class EventsResolver {
     return this.eventsService.createEvent(user.id, createEventInput);
   }
 
-  @Query(() => [Event], { name: 'events' })
-  findAll() {
-    return this.eventsService.findAll();
+  @UseGuards(GqlAuthGuard)
+  @Query(() => [Event], { name: 'providerEvents' })
+  findAllProviderEvents(@CurrentUser() user: User) {
+    return this.eventsService.findAllProviderEvents(user.id);
   }
 
   @Query(() => Event, { name: 'event' })

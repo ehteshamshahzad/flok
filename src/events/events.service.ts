@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ProviderStaff } from 'src/providers/entities/provider-staff.entity';
 import { ProvidersService } from 'src/providers/providers.service';
 import { UserType } from 'src/users/entities/user-type.enum';
 import { UsersService } from 'src/users/users.service';
@@ -46,9 +47,9 @@ export class EventsService {
    * 4. Assign categories to event*
    * 5. Assign recurring dates to event
    */
-  async createEvent(userId: string, createEventInput: CreateEventInput) {
+  async createEvent(userId: string, createEventInput: CreateEventInput): Promise<Event> {
 
-    const validStaffPromise = this.providerService.findProviderStaffIdByUserIdProviderIdEmployeedOrOwner(userId, createEventInput.providerId);
+    const validStaffPromise: Promise<ProviderStaff> = this.providerService.findProviderStaffIdProviderIdByUserIdEmployeedOrOwner(userId);
 
     const event = new Event();
     event.setId = undefined;
@@ -147,8 +148,16 @@ export class EventsService {
     return recurringEvent;
   }
 
-  async findAll() {
-    const events = await this.eventsRepository.find();
+  async findAllProviderEvents(userId: string) {
+    const providerStaff: ProviderStaff = await this.providerService.findProviderStaffProviderIdByUserIdEmployeedOrOwner(userId);
+    const events: Event[] = await this.eventsRepository.find({
+      where: { providerId: providerStaff.providerId },
+      relations: {
+        eventCategories: true,
+        recurringEvents: true,
+        eventMultiLanguages: true
+      }
+    });
     return events;
   }
 
@@ -175,7 +184,7 @@ export class EventsService {
   // Pending
   async update(userId: string, updateEventInput: UpdateEventInput) {
 
-    const provider = await this.providerService.findProviderStaffIdByUserIdProviderIdEmployeedOrOwner(userId, updateEventInput.providerId);
+    const provider = await this.providerService.findProviderStaffIdProviderIdByUserIdEmployeedOrOwner(userId);
 
     const event = await this.eventsRepository.findOne({ where: { id: updateEventInput.id } });
 
@@ -269,14 +278,14 @@ export class EventsService {
     return await this.eventReviewsRepository.save(eventReview);
   }
 
-  async getEventReviews(userId: string, providerId: string, eventId: string) {
+  async getEventReviews(userId: string, eventId: string) {
 
-    const [provider, reviews] = await Promise.all([
-      this.providerService.findProviderStaffIdByUserIdProviderIdEmployeedOrOwner(userId, providerId),
+    const [providerStaff, reviews]: [ProviderStaff, EventReview[]] = await Promise.all([
+      this.providerService.findProviderStaffProviderIdByUserIdEmployeedOrOwner(userId),
       this.eventReviewsRepository.find({ where: { eventId } })
     ]);
 
-    if (!provider) {
+    if (!providerStaff) {
       throw new HttpException({
         statusCode: HttpStatus.NOT_FOUND,
         error: 'Not found',
@@ -291,13 +300,13 @@ export class EventsService {
 
   async remove(userId: string, removeEventInput: RemoveEventInput) {
 
-    const [provider, event] = await Promise.all([
-      this.providerService.findProviderStaffIdByUserIdProviderIdEmployeedOrOwner(userId, removeEventInput.providerId),
+    const [providerStaff, event] = await Promise.all([
+      this.providerService.findProviderStaffIdProviderIdByUserIdEmployeedOrOwner(userId),
       this.eventsRepository.findOne({ where: { id: removeEventInput.eventId }, select: { id: true, status: true } })
     ]);
 
     event.status = EventStatus.DELETED;
-    if (!provider) {
+    if (!providerStaff || removeEventInput.providerId !== providerStaff.providerId) {
       throw new HttpException({
         statusCode: HttpStatus.NOT_FOUND,
         error: 'Not found',
@@ -306,7 +315,7 @@ export class EventsService {
         ]
       }, HttpStatus.NOT_FOUND);
     }
-
-    return;
+    await this.eventsRepository.update(event.id, event);
+    return event;
   }
 }

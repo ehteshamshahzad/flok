@@ -17,7 +17,7 @@ export class UsersService {
     private readonly configService: ConfigService
   ) { }
 
-  async findUserIdNameUserTypeProfileImageDoBPasswordByEmail(email: string): Promise<User> {
+  async findUserIdNameUserTypeProfileImageDoBPasswordProvidersStaffIdByEmail(email: string): Promise<User> {
     return this.usersRepository.findOne({
       where: { email },
       select: {
@@ -26,7 +26,8 @@ export class UsersService {
         userType: true,
         profileImageURL: true,
         dateOfBirth: true,
-        password: true
+        password: true,
+        providerStaffId: true
       }
     });
   }
@@ -41,7 +42,8 @@ export class UsersService {
         email: users[i].email,
         dateOfBirth: users[i].dateOfBirth,
         profileImageURL: users[i].profileImageURL,
-        userType: users[i].userType
+        userType: users[i].userType,
+
       });
     }
     return usersResponse;
@@ -61,6 +63,12 @@ export class UsersService {
 
     await this.usersRepository.update(userId, user);
     return await this.findOne(userId) as UserDto;
+  }
+
+  async updateUserProviderStaff(userId: string, providerStaffId: string) {
+    const user = await this.usersRepository.findOne({ where: { id: userId }, select: { id: true, providerStaffId: true } });
+    user.providerStaffId = providerStaffId;
+    return await this.usersRepository.update(user.id, user);
   }
 
   async findUserIdByEmail(email: string): Promise<User> {

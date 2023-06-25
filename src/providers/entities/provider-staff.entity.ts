@@ -1,7 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { BaseEntity } from 'src/base-entity';
 import { User } from 'src/users/entities/user.entity';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 import { EmploymentStatus } from './employment-status.enum';
 import { Provider } from './provider.entity';
 
@@ -13,7 +13,7 @@ export class ProviderStaff extends BaseEntity {
     @Column({ nullable: false, unique: false, length: 36 })
     userId: string;
 
-    @ManyToOne(() => User, (user: User) => user.providerStaff, { createForeignKeyConstraints: false })
+    @OneToOne(() => User, (user: User) => user.providerStaff, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'userId' })
     @Field({ nullable: true })
     user: User;
