@@ -34,5 +34,21 @@ export const seedUsers = [
         password: '$*Kz2%5#4T8m',
         userType: UserType.ADMIN,
         accountStatus: AccountStatus.ACTIVE
+    },
+    {
+        id: '82e6b6de-5ed3-459a-a514-199794e69cbd',
+        name: 'Ehtesham Parent',
+        email: 'ehtesham+parent@gmail.com',
+        password: '1234567890',
+        userType: UserType.PARENT,
+        accountStatus: AccountStatus.ACTIVE
+    },
+    {
+        id: '11d63a9f-4712-431a-9e2f-d3152f8b04ca',
+        name: 'Ehtesham Provider',
+        email: 'ehtesham+provider@gmail.com',
+        password: '1234567890',
+        userType: UserType.PROVIDER,
+        accountStatus: AccountStatus.ACTIVE
     }
 ] as User[];

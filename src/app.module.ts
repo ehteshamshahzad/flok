@@ -11,6 +11,7 @@ import { EventsModule } from './events/events.module';
 import { config } from './orm.config';
 import { ProvidersModule } from './providers/providers.module';
 import { UsersModule } from './users/users.module';
+import { ParentsModule } from './parents/parents.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { UsersModule } from './users/users.module';
     CategoriesModule,
     ProvidersModule,
     EventsModule,
+    ParentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
