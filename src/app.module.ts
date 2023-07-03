@@ -9,9 +9,9 @@ import { AuthModule } from './auth/auth.module';
 import { CategoriesModule } from './categories/categories.module';
 import { EventsModule } from './events/events.module';
 import { config } from './orm.config';
+import { ParentsModule } from './parents/parents.module';
 import { ProvidersModule } from './providers/providers.module';
 import { UsersModule } from './users/users.module';
-import { ParentsModule } from './parents/parents.module';
 
 @Module({
   imports: [
@@ -53,7 +53,7 @@ import { ParentsModule } from './parents/parents.module';
     CategoriesModule,
     ProvidersModule,
     EventsModule,
-    ParentsModule,
+    ParentsModule
   ],
   controllers: [AppController],
   providers: [AppService],

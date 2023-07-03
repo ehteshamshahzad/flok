@@ -10,8 +10,10 @@ import { EventReview } from './entities/event-review.entity';
 import { EventWaitingList } from './entities/event-waiting-list.entity';
 import { Event } from './entities/event.entity';
 import { FlaggedInappropriate } from './entities/flagged-inappropriate.entity';
+import { Ticket } from './entities/ticket.entity';
 import { EventsResolver } from './events.resolver';
 import { EventsService } from './events.service';
+import { TicketsService } from './tickets.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([
@@ -22,8 +24,9 @@ import { EventsService } from './events.service';
     RecurringEvent,
     EventReview,
     EventWaitingList,
-    FlaggedInappropriate
+    FlaggedInappropriate,
+    Ticket
   ]), UsersModule, ProvidersModule],
-  providers: [EventsResolver, EventsService]
+  providers: [EventsResolver, EventsService, TicketsService]
 })
 export class EventsModule { }

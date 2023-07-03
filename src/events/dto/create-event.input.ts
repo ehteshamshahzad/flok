@@ -1,16 +1,11 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { Type } from 'class-transformer';
-import { ArrayMinSize, IsArray, IsDate, IsEnum, IsNotEmpty, IsNumber, IsString, IsUUID, MaxLength, Min, ValidateNested } from 'class-validator';
+import { ArrayMinSize, IsArray, IsDate, IsEnum, IsNotEmpty, IsNumber, IsString, MaxLength, Min, ValidateNested } from 'class-validator';
 import { Language } from 'src/language.enum';
 import { EventStatus } from '../entities/event-status.enum';
 
 @InputType()
 export class CreateEventInput {
-
-  @IsUUID()
-  @IsNotEmpty()
-  @Field(() => String, { description: 'Id of provider hosting the event' })
-  providerId: string;
 
   @IsArray()
   @ValidateNested({ each: true })
@@ -61,8 +56,17 @@ export class CreateEventInput {
 
   @IsEnum(EventStatus)
   @IsNotEmpty()
+  @Field(() => EventStatus, { description: "Event status: 'Draft' | 'Published' | 'Archive' | 'Private' | 'Deleted'" })
   status: EventStatus;
 
+  @IsNumber()
+  @IsNotEmpty()
+  @Field(() => Number)
+  numberOfTickets: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  price: number;
 }
 
 @InputType()

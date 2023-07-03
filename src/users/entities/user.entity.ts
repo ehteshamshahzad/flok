@@ -2,6 +2,7 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { EventReview } from 'src/events/entities/event-review.entity';
 import { EventWaitingList } from 'src/events/entities/event-waiting-list.entity';
 import { FlaggedInappropriate } from 'src/events/entities/flagged-inappropriate.entity';
+import { Ticket } from 'src/events/entities/ticket.entity';
 import { Child } from 'src/parents/entities/child.entity';
 import { Contact } from 'src/parents/entities/contact.entity';
 import { ProviderStaff } from 'src/providers/entities/provider-staff.entity';
@@ -75,4 +76,8 @@ export class User extends BaseEntity {
   @Field(() => [Contact], { description: 'User contacts', nullable: true })
   @OneToMany(() => Contact, (contacts: Contact) => contacts.user)
   contacts: Contact[];
+
+  @Field(() => [Ticket], { description: 'Tickets purchased by user', nullable: true })
+  @OneToMany(() => Ticket, (contacts: Ticket) => contacts.user)
+  tickets: Ticket[];
 }

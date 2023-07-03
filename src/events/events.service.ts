@@ -1,5 +1,4 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProviderStaff } from 'src/providers/entities/provider-staff.entity';
 import { ProvidersService } from 'src/providers/providers.service';
@@ -21,6 +20,7 @@ import { EventStatus } from './entities/event-status.enum';
 import { EventWaitingList } from './entities/event-waiting-list.entity';
 import { Event } from './entities/event.entity';
 import { FlaggedInappropriate } from './entities/flagged-inappropriate.entity';
+import { TicketsService } from './tickets.service';
 
 @Injectable()
 export class EventsService {
@@ -36,7 +36,7 @@ export class EventsService {
     @InjectRepository(FlaggedInappropriate) private readonly flaggedInappropriateRepository: Repository<FlaggedInappropriate>,
     private readonly usersService: UsersService,
     private readonly providerService: ProvidersService,
-    private readonly configService: ConfigService
+    private readonly ticketsService: TicketsService
   ) { }
 
   /**
@@ -49,20 +49,18 @@ export class EventsService {
    */
   async createEvent(userId: string, createEventInput: CreateEventInput): Promise<Event> {
 
-    const validStaffPromise: Promise<ProviderStaff> = this.providerService.findProviderStaffIdProviderIdByUserIdEmployeedOrOwner(userId);
+    if (createEventInput.numberOfTickets < 1) {
+      throw new HttpException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        error: 'Invalid tickets',
+        message: [
+          'Tickets cannot be less than 1'
+        ]
+      }, HttpStatus.BAD_REQUEST);
+    }
 
-    const event = new Event();
-    event.setId = undefined;
-    event.providerId = createEventInput.providerId;
-    event.location = createEventInput.location;
-    event.longitude = createEventInput.longitude;
-    event.latitude = createEventInput.latitude;
-    event.minAge = createEventInput.minAge;
-    event.maxAge = createEventInput.maxAge;
-    event.registrationDeadline = createEventInput.registrationDeadline;
-    event.status = createEventInput.status;
+    const validStaff: ProviderStaff = await this.providerService.findProviderStaffIdProviderIdByUserIdEmployeedOrOwner(userId);
 
-    const validStaff = await validStaffPromise;
     if (!validStaff) {
       throw new HttpException({
         statusCode: HttpStatus.NOT_FOUND,
@@ -73,17 +71,30 @@ export class EventsService {
       }, HttpStatus.NOT_FOUND);
     }
 
+    const event = new Event();
+    event.setId = undefined;
+    event.providerId = validStaff.providerId;
+    event.location = createEventInput.location;
+    event.longitude = createEventInput.longitude;
+    event.latitude = createEventInput.latitude;
+    event.minAge = createEventInput.minAge;
+    event.maxAge = createEventInput.maxAge;
+    event.registrationDeadline = createEventInput.registrationDeadline;
+    event.status = createEventInput.status;
+
     const savedEvent = await this.eventsRepository.save(event);
 
-    const [eventMultiLangauges, eventCategories, recurringEvents] = await Promise.all([
+    const [eventMultiLangauges, eventCategories, recurringEvents, tickets] = await Promise.all([
       this.createMultiLanguageEvents(savedEvent.id, createEventInput.eventDetails),
       this.createEventCategories(savedEvent.id, createEventInput.categoryIds),
-      this.assigningRecurringEventDates(savedEvent.id, createEventInput.recurringDates)
+      this.assigningRecurringEventDates(savedEvent.id, createEventInput.recurringDates),
+      this.ticketsService.create(createEventInput.numberOfTickets, { eventId: event.id, price: createEventInput.price })
     ]);
 
     event.eventMultiLanguages = eventMultiLangauges;
     event.eventCategories = eventCategories;
     event.recurringEvents = recurringEvents;
+    event.tickets = tickets;
 
     return event;
   }

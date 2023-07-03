@@ -164,6 +164,17 @@ export class ProvidersService {
       ],
       relations: { provider: true }
     });
+
+    if (!providerStaffRequest) {
+      throw new HttpException({
+        statusCode: HttpStatus.NOT_FOUND,
+        error: 'Not found',
+        message: [
+          'No provider found'
+        ]
+      }, HttpStatus.NOT_FOUND);
+    }
+
     return providerStaffRequest.provider;
   }
 

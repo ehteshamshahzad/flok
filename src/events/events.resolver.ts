@@ -5,15 +5,21 @@ import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
 import { User } from 'src/users/entities/user.entity';
 import { CreateEventInput } from './dto/create-event.input';
 import { FlaggedInappropriateInput } from './dto/flagged-inappropriate.input';
+import { PurchaseTicketsInput } from './dto/purchase-tickets.input';
 import { RemoveEventInput } from './dto/remove-event.input';
 import { UpdateEventInput } from './dto/update-event.input';
 import { Event } from './entities/event.entity';
 import { FlaggedInappropriate } from './entities/flagged-inappropriate.entity';
+import { Ticket } from './entities/ticket.entity';
 import { EventsService } from './events.service';
+import { TicketsService } from './tickets.service';
 
 @Resolver(() => Event)
 export class EventsResolver {
-  constructor(private readonly eventsService: EventsService) { }
+  constructor(
+    private readonly eventsService: EventsService,
+    private readonly ticketsService: TicketsService
+  ) { }
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Event, { name: 'createEvent' })
@@ -48,5 +54,11 @@ export class EventsResolver {
   @Mutation(() => Event, { nullable: true })
   removeEvent(@CurrentUser() user: User, @Args('removeEventInput') removeEventInput: RemoveEventInput) {
     return this.eventsService.remove(user.id, removeEventInput);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => [Ticket], { nullable: true })
+  async purchaseTickets(@CurrentUser() user: User, @Args('purchaseTicketsInput') purchaseTicketsInput: PurchaseTicketsInput) {
+    return await this.ticketsService.purchaseTickets(user.id, purchaseTicketsInput);
   }
 }

@@ -10,6 +10,7 @@ import { EventReview } from './event-review.entity';
 import { EventStatus } from './event-status.enum';
 import { EventWaitingList } from './event-waiting-list.entity';
 import { FlaggedInappropriate } from './flagged-inappropriate.entity';
+import { Ticket } from './ticket.entity';
 
 @Entity('event')
 @ObjectType()
@@ -83,4 +84,8 @@ export class Event extends BaseEntity {
   @OneToMany(() => EventCategory, (eventCategories: EventCategory) => eventCategories.event)
   @Field(() => [EventCategory], { description: 'List of categories an event belongs to' })
   eventCategories: EventCategory[];
+
+  @OneToMany(() => Ticket, (contacts: Ticket) => contacts.user)
+  @Field(() => [Ticket], { description: 'Tickets belonging to an event', nullable: true })
+  tickets: Ticket[];
 }

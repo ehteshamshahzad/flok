@@ -44,7 +44,7 @@ export const seedUsers = [
         accountStatus: AccountStatus.ACTIVE
     },
     {
-        id: '11d63a9f-4712-431a-9e2f-d3152f8b04ca',
+        id: '4bd8731c-275e-4cf2-8311-1c8e93260c5d',
         name: 'Ehtesham Provider',
         email: 'ehtesham+provider@gmail.com',
         password: '1234567890',
