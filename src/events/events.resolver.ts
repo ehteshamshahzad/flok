@@ -18,12 +18,15 @@ import { TicketsService } from './tickets.service';
 export class EventsResolver {
   constructor(
     private readonly eventsService: EventsService,
-    private readonly ticketsService: TicketsService
-  ) { }
+    private readonly ticketsService: TicketsService,
+  ) {}
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Event, { name: 'createEvent' })
-  createEvent(@CurrentUser() user: User, @Args('createEventInput') createEventInput: CreateEventInput) {
+  createEvent(
+    @CurrentUser() user: User,
+    @Args('createEventInput') createEventInput: CreateEventInput,
+  ) {
     return this.eventsService.createEvent(user.id, createEventInput);
   }
 
@@ -33,6 +36,18 @@ export class EventsResolver {
     return this.eventsService.findAllProviderEvents(user.id);
   }
 
+  @UseGuards(GqlAuthGuard)
+  @Query(() => [Event], { name: 'providerFutureEvents' })
+  findAllProviderActiveEvents(@CurrentUser() user: User) {
+    return this.eventsService.findAllProviderFutureEvents(user.id);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => [Event], { name: 'providerPastEvents' })
+  findAllProviderPastEvents(@CurrentUser() user: User) {
+    return this.eventsService.findAllProviderPastEvents(user.id);
+  }
+
   @Query(() => Event, { name: 'event' })
   findOne(@Args('id', { type: () => String }) id: string) {
     return this.eventsService.findOne(id);
@@ -40,25 +55,41 @@ export class EventsResolver {
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Event)
-  updateEvent(@CurrentUser() user: User, @Args('updateEventInput') updateEventInput: UpdateEventInput) {
+  updateEvent(
+    @CurrentUser() user: User,
+    @Args('updateEventInput') updateEventInput: UpdateEventInput,
+  ) {
     return this.eventsService.update(user.id, updateEventInput);
   }
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => FlaggedInappropriate)
-  async flagEvent(@CurrentUser() user: User, @Args('flaggedInappropriateInput') flaggedInappropriateInput: FlaggedInappropriateInput) {
+  async flagEvent(
+    @CurrentUser() user: User,
+    @Args('flaggedInappropriateInput')
+    flaggedInappropriateInput: FlaggedInappropriateInput,
+  ) {
     return this.eventsService.flagEvent(user.id, flaggedInappropriateInput);
   }
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Event, { nullable: true })
-  removeEvent(@CurrentUser() user: User, @Args('removeEventInput') removeEventInput: RemoveEventInput) {
+  removeEvent(
+    @CurrentUser() user: User,
+    @Args('removeEventInput') removeEventInput: RemoveEventInput,
+  ) {
     return this.eventsService.remove(user.id, removeEventInput);
   }
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => [Ticket], { nullable: true })
-  async purchaseTickets(@CurrentUser() user: User, @Args('purchaseTicketsInput') purchaseTicketsInput: PurchaseTicketsInput) {
-    return await this.ticketsService.purchaseTickets(user.id, purchaseTicketsInput);
+  async purchaseTickets(
+    @CurrentUser() user: User,
+    @Args('purchaseTicketsInput') purchaseTicketsInput: PurchaseTicketsInput,
+  ) {
+    return await this.ticketsService.purchaseTickets(
+      user.id,
+      purchaseTicketsInput,
+    );
   }
 }
