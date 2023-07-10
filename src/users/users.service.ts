@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { hashFunction } from 'src/utils/hash-password';
@@ -11,13 +11,14 @@ import { seedUsers } from './seed';
 
 @Injectable()
 export class UsersService {
-
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
-    private readonly configService: ConfigService
-  ) { }
+    private readonly configService: ConfigService,
+  ) {}
 
-  async findUserIdNameUserTypeProfileImageDoBPasswordProvidersStaffIdByEmail(email: string): Promise<User> {
+  async findUserIdNameUserTypeProfileImageDoBPasswordProvidersStaffIdByEmail(
+    email: string,
+  ): Promise<User> {
     return this.usersRepository.findOne({
       where: { email },
       select: {
@@ -27,14 +28,24 @@ export class UsersService {
         profileImageURL: true,
         dateOfBirth: true,
         password: true,
-        providerStaffId: true
-      }
+        providerStaffId: true,
+      },
     });
   }
 
   async findAll() {
     const usersResponse: UserDto[] = [];
-    const users = await this.usersRepository.find({ select: { id: true, name: true, email: true, accountStatus: true, dateOfBirth: true, profileImageURL: true, userType: true } });
+    const users = await this.usersRepository.find({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        accountStatus: true,
+        dateOfBirth: true,
+        profileImageURL: true,
+        userType: true,
+      },
+    });
     for (let i = 0; i < users.length; i++) {
       usersResponse.push({
         id: users[i].id,
@@ -43,36 +54,46 @@ export class UsersService {
         dateOfBirth: users[i].dateOfBirth,
         profileImageURL: users[i].profileImageURL,
         userType: users[i].userType,
-
       });
     }
     return usersResponse;
   }
 
   async findOne(id: string): Promise<UserDto> {
-    return await this.usersRepository.findOne({ where: { id } }) ?? {} as UserDto;
+    return (
+      (await this.usersRepository.findOne({ where: { id } })) ?? ({} as UserDto)
+    );
   }
 
-  async updateUser(userId: string, updateUserInput: UpdateUserInput): Promise<UserDto> {
-
+  async updateUser(
+    userId: string,
+    updateUserInput: UpdateUserInput,
+  ): Promise<UserDto> {
     const user = await this.usersRepository.findOne({ where: { id: userId } });
 
     user.updateUpdatedAt();
     user.name = updateUserInput.name;
-    user.dateOfBirth = updateUserInput.dateOfBirth && updateUserInput.dateOfBirth;
+    user.dateOfBirth =
+      updateUserInput.dateOfBirth && updateUserInput.dateOfBirth;
 
     await this.usersRepository.update(userId, user);
-    return await this.findOne(userId) as UserDto;
+    return (await this.findOne(userId)) as UserDto;
   }
 
   async updateUserProviderStaff(userId: string, providerStaffId: string) {
-    const user = await this.usersRepository.findOne({ where: { id: userId }, select: { id: true, providerStaffId: true } });
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      select: { id: true, providerStaffId: true },
+    });
     user.providerStaffId = providerStaffId;
     return await this.usersRepository.update(user.id, user);
   }
 
   async findUserIdByEmail(email: string): Promise<User> {
-    return this.usersRepository.findOne({ where: { email }, select: { id: true } });
+    return this.usersRepository.findOne({
+      where: { email },
+      select: { id: true },
+    });
   }
 
   async createUser(user: User) {
@@ -86,7 +107,10 @@ export class UsersService {
       user.setId = seedUsers[i].id;
       user.name = seedUsers[i].name;
       user.email = seedUsers[i].email;
-      user.password = hashFunction(seedUsers[i].password, `${this.configService.get<string>('HASH_SECRET')}_${user.id}`);
+      user.password = hashFunction(
+        seedUsers[i].password,
+        `${this.configService.get<string>('HASH_SECRET')}_${user.id}`,
+      );
       user.userType = seedUsers[i].userType;
       user.accountStatus = seedUsers[i].accountStatus;
       savedUsersPromise.push(this.usersRepository.save(user));
@@ -101,6 +125,46 @@ export class UsersService {
   }
 
   async findUserIdByIdUserType(id: string, userType: UserType) {
-    return this.usersRepository.findOne({ where: { id, userType }, select: { id: true } });
+    return this.usersRepository.findOne({
+      where: { id, userType },
+      select: { id: true },
+    });
+  }
+
+  async findParentUsers(userId: string, limit: number, page: number) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      select: { id: true },
+    });
+    if (!user) {
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.BAD_REQUEST,
+          error: 'Invalid user',
+          message: ['Only admin can view all providers'],
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const [parentUsers, totalItems] = await this.usersRepository.findAndCount({
+      where: { userType: UserType.PARENT },
+      skip: (page - 1) * limit,
+      take: limit,
+      relations: {
+        eventWaitingList: true,
+        eventReviews: true,
+        children: true,
+        tickets: true,
+        contacts: true,
+      },
+    });
+
+    return {
+      items: parentUsers,
+      totalItems,
+      page,
+      limit,
+    };
   }
 }
