@@ -13,6 +13,7 @@ import { ParentsModule } from './parents/parents.module';
 import { ProvidersModule } from './providers/providers.module';
 import { UsersModule } from './users/users.module';
 import { ImageUploadModule } from './image-upload/image-upload.module';
+import { EmailsModule } from './emails/emails.module';
 
 @Module({
   imports: [
@@ -55,7 +56,8 @@ import { ImageUploadModule } from './image-upload/image-upload.module';
     ProvidersModule,
     EventsModule,
     ParentsModule,
-    ImageUploadModule
+    ImageUploadModule,
+    EmailsModule
   ],
   controllers: [AppController],
   providers: [AppService],

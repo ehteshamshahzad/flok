@@ -2,6 +2,8 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { LoginUserResponse } from 'src/auth/dto/login-user-response.dto';
+import { EmailsService } from 'src/emails/emails.service';
+import { introduction } from 'src/emails/templates/welcome';
 import { AccountStatus } from 'src/users/entities/account-status.enum';
 import { UserType } from 'src/users/entities/user-type.enum';
 import { User } from 'src/users/entities/user.entity';
@@ -17,7 +19,8 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly configService: ConfigService,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
+    private readonly emailsService: EmailsService
   ) { }
 
   async login(loginUserInput: LoginUserInput) {
@@ -110,6 +113,17 @@ export class AuthService {
         ]
       }, HttpStatus.BAD_REQUEST);
     }
+
+    // This can be used as a signup email with confirmation code/link
+    await this.emailsService.sendEmail({
+      senderName: '',
+      toAddresses: [''],
+      ccAddresses: [],
+      replyToAddresses: [''],
+      subject: ``,
+      body: introduction(),
+      source: `noreply@flokkids.com`,
+    });
 
     const savedUser = await this.usersService.createUser(user);
     const result: RegisterUserResponseDto = {
