@@ -16,16 +16,19 @@ import { Provider } from './entities/provider.entity';
 
 @Injectable()
 export class ProvidersService {
-
   constructor(
-    @InjectRepository(Provider) private readonly providersRepository: Repository<Provider>,
-    @InjectRepository(ProviderStaff) private readonly providerStaffRepository: Repository<ProviderStaff>,
-    private readonly usersService: UsersService
-  ) { }
+    @InjectRepository(Provider)
+    private readonly providersRepository: Repository<Provider>,
+    @InjectRepository(ProviderStaff)
+    private readonly providerStaffRepository: Repository<ProviderStaff>,
+    private readonly usersService: UsersService,
+  ) {}
 
   async create(userId: string, createProviderInput: CreateProviderInput) {
-
-    const userPromise = this.usersService.findUserIdByIdUserType(userId, UserType.PROVIDER);
+    const userPromise = this.usersService.findUserIdByIdUserType(
+      userId,
+      UserType.PROVIDER,
+    );
 
     const provider = new Provider();
     provider.setId = undefined;
@@ -36,13 +39,14 @@ export class ProvidersService {
     const user = await userPromise;
 
     if (!user) {
-      throw new HttpException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        error: 'Invalid user',
-        message: [
-          'Only user of type provider can create an organization'
-        ]
-      }, HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.BAD_REQUEST,
+          error: 'Invalid user',
+          message: ['Only user of type provider can create an organization'],
+        },
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const savedProvider = await this.providersRepository.save(provider);
@@ -59,32 +63,30 @@ export class ProvidersService {
     await this.usersService.updateUserProviderStaff(userId, providerStaff.id);
 
     return savedProvider;
-
   }
 
   async inviteStaff(userId: string, inviteStaffInput: InviteStaffInput) {
-
     const providerStaff = await this.providerStaffRepository.findOne({
       where: {
         userId,
         providerId: inviteStaffInput.providerId,
-        employmentStatus: EmploymentStatus.OWNER
+        employmentStatus: EmploymentStatus.OWNER,
       },
-      select:
-      {
+      select: {
         id: true,
-        providerId: true
-      }
+        providerId: true,
+      },
     });
 
     if (!providerStaff) {
-      throw new HttpException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        error: 'Invalid user',
-        message: [
-          'Invalid user is trying to invite staff'
-        ]
-      }, HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.BAD_REQUEST,
+          error: 'Invalid user',
+          message: ['Invalid user is trying to invite staff'],
+        },
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const user = new User();
@@ -107,43 +109,50 @@ export class ProvidersService {
     return newProviderStaff;
   }
 
-  async terminateStaff(userId: string, terminateStaffInput: TerminateStaffInput) {
-
+  async terminateStaff(
+    userId: string,
+    terminateStaffInput: TerminateStaffInput,
+  ) {
     const [providerOwner, providerStaffTerminate] = await Promise.all([
       this.providerStaffRepository.findOne({
         where: {
           userId,
           providerId: terminateStaffInput.providerId,
-          employmentStatus: EmploymentStatus.OWNER
+          employmentStatus: EmploymentStatus.OWNER,
         },
-        select: { id: true }
+        select: { id: true },
       }),
       this.providerStaffRepository.findOne({
         where: {
           userId: terminateStaffInput.staffId,
           providerId: terminateStaffInput.providerId,
-          employmentStatus: EmploymentStatus.EMPLOYEED
+          employmentStatus: EmploymentStatus.EMPLOYEED,
         },
-        select: { id: true, employmentStatus: true }
-      })
+        select: { id: true, employmentStatus: true },
+      }),
     ]);
 
     if (!providerOwner || !providerStaffTerminate) {
-      throw new HttpException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        error: 'Failed to terminate',
-        message: [
-          'Unable to terminate staff member'
-        ]
-      }, HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.BAD_REQUEST,
+          error: 'Failed to terminate',
+          message: ['Unable to terminate staff member'],
+        },
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     providerStaffTerminate.employmentStatus = EmploymentStatus.TERMINATED;
 
-    await this.providerStaffRepository.update(providerStaffTerminate.id, providerStaffTerminate);
+    await this.providerStaffRepository.update(
+      providerStaffTerminate.id,
+      providerStaffTerminate,
+    );
 
-    return await this.providerStaffRepository.findOne({ where: { id: providerStaffTerminate.id } });
-
+    return await this.providerStaffRepository.findOne({
+      where: { id: providerStaffTerminate.id },
+    });
   }
 
   async findOne(id: string) {
@@ -155,82 +164,124 @@ export class ProvidersService {
       where: [
         {
           userId,
-          employmentStatus: EmploymentStatus.OWNER
+          employmentStatus: EmploymentStatus.OWNER,
         },
         {
           userId,
-          employmentStatus: EmploymentStatus.EMPLOYEED
-        }
+          employmentStatus: EmploymentStatus.EMPLOYEED,
+        },
       ],
-      relations: { provider: true }
+      relations: { provider: true },
     });
 
     if (!providerStaffRequest) {
-      throw new HttpException({
-        statusCode: HttpStatus.NOT_FOUND,
-        error: 'Not found',
-        message: [
-          'No provider found'
-        ]
-      }, HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.NOT_FOUND,
+          error: 'Not found',
+          message: ['No provider found'],
+        },
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     return providerStaffRequest.provider;
   }
 
   async update(userId: string, updateProviderInput: UpdateProviderInput) {
-
     const a = new Map();
 
     const aa = a.get('');
-    a.values()
+    a.values();
 
-    const providerStaff = await this.providerStaffRepository.findOne({ where: { providerId: updateProviderInput.id, userId } });
+    const providerStaff = await this.providerStaffRepository.findOne({
+      where: { providerId: updateProviderInput.id, userId },
+    });
 
     if (!providerStaff) {
-      throw new HttpException({
-        statusCode: HttpStatus.NOT_FOUND,
-        error: 'Not found',
-        message: [
-          'Provider not found'
-        ]
-      }, HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.NOT_FOUND,
+          error: 'Not found',
+          message: ['Provider not found'],
+        },
+        HttpStatus.NOT_FOUND,
+      );
     }
 
-    await this.providersRepository.update(updateProviderInput.id, updateProviderInput)
-    return await this.providersRepository.findOne({ where: { id: updateProviderInput.id } });
+    await this.providersRepository.update(
+      updateProviderInput.id,
+      updateProviderInput,
+    );
+    return await this.providersRepository.findOne({
+      where: { id: updateProviderInput.id },
+    });
   }
 
-  async findProviderStaffIdProviderIdByUserIdEmployeedOrOwner(userId: string): Promise<ProviderStaff> {
+  async findProviderStaffIdProviderIdByUserIdEmployeedOrOwner(
+    userId: string,
+  ): Promise<ProviderStaff> {
     return await this.providerStaffRepository.findOne({
       where: [
         {
           userId,
-          employmentStatus: EmploymentStatus.EMPLOYEED
+          employmentStatus: EmploymentStatus.EMPLOYEED,
         },
         {
           userId,
-          employmentStatus: EmploymentStatus.OWNER
-        }
+          employmentStatus: EmploymentStatus.OWNER,
+        },
       ],
-      select: { id: true, providerId: true }
+      select: { id: true, providerId: true },
     });
   }
 
-  async findProviderStaffProviderIdByUserIdEmployeedOrOwner(userId: string): Promise<ProviderStaff> {
+  async findProviderStaffProviderIdByUserIdEmployeedOrOwner(
+    userId: string,
+  ): Promise<ProviderStaff> {
     return await this.providerStaffRepository.findOne({
       where: [
         {
           userId,
-          employmentStatus: EmploymentStatus.EMPLOYEED
+          employmentStatus: EmploymentStatus.EMPLOYEED,
         },
         {
           userId,
-          employmentStatus: EmploymentStatus.OWNER
-        }
+          employmentStatus: EmploymentStatus.OWNER,
+        },
       ],
-      select: { providerId: true }
+      select: { providerId: true },
     });
   }
 
+  async findAllProviders(userId: string, page: number, limit: number) {
+    const user = await this.usersService.findUserIdByIdUserType(
+      userId,
+      UserType.ADMIN,
+    );
+    if (!user) {
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.BAD_REQUEST,
+          error: 'Invalid user',
+          message: ['Only admin can view all providers'],
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const [providers, totalItems] = await this.providersRepository.findAndCount(
+      {
+        skip: (page - 1) * limit,
+        take: limit,
+      },
+    );
+
+    return {
+      items: providers,
+      totalItems,
+      page,
+      limit,
+    };
+  }
 }

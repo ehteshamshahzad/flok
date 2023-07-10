@@ -1,5 +1,5 @@
 import { UseGuards } from '@nestjs/common';
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CurrentUser } from 'src/auth/current-user.decorator';
 import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
 import { User } from 'src/users/entities/user.entity';
@@ -10,32 +10,45 @@ import { UpdateProviderInput } from './dto/update-provider.input';
 import { ProviderStaff } from './entities/provider-staff.entity';
 import { Provider } from './entities/provider.entity';
 import { ProvidersService } from './providers.service';
+import { PaginatedProviders } from './dto/paginated-providers.dto';
 
 @Resolver(() => Provider)
 export class ProvidersResolver {
-  constructor(private readonly providersService: ProvidersService) { }
+  constructor(private readonly providersService: ProvidersService) {}
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Provider, { name: 'registerProvider' })
-  createProvider(@CurrentUser() user: User, @Args('createProviderInput') createProviderInput: CreateProviderInput) {
+  createProvider(
+    @CurrentUser() user: User,
+    @Args('createProviderInput') createProviderInput: CreateProviderInput,
+  ) {
     return this.providersService.create(user.id, createProviderInput);
   }
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => ProviderStaff, { name: 'inviteStaff' })
-  inviteStaff(@CurrentUser() user: User, @Args('inviteStaff') inviteStaffInput: InviteStaffInput) {
+  inviteStaff(
+    @CurrentUser() user: User,
+    @Args('inviteStaff') inviteStaffInput: InviteStaffInput,
+  ) {
     return this.providersService.inviteStaff(user.id, inviteStaffInput);
   }
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => ProviderStaff, { name: 'terminateStaff' })
-  terminateStaff(@CurrentUser() user: User, @Args('terminateStaffInput') terminateStaffInput: TerminateStaffInput) {
+  terminateStaff(
+    @CurrentUser() user: User,
+    @Args('terminateStaffInput') terminateStaffInput: TerminateStaffInput,
+  ) {
     return this.providersService.terminateStaff(user.id, terminateStaffInput);
   }
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Provider, { name: 'updateProvider' })
-  updateProvider(@CurrentUser() user: User, @Args('updateProviderInput') updateProviderInput: UpdateProviderInput) {
+  updateProvider(
+    @CurrentUser() user: User,
+    @Args('updateProviderInput') updateProviderInput: UpdateProviderInput,
+  ) {
     return this.providersService.update(user.id, updateProviderInput);
   }
 
@@ -48,5 +61,15 @@ export class ProvidersResolver {
   @Query(() => Provider, { name: 'findMyProvider', nullable: true })
   findMyProvider(@CurrentUser() user: User) {
     return this.providersService.findMyProvider(user.id);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => PaginatedProviders, { name: 'findAllProviders' })
+  findAllProviders(
+    @CurrentUser() user: User,
+    @Args('limit', { type: () => Int, defaultValue: 10 }) limit: number,
+    @Args('page', { type: () => Int, defaultValue: 1 }) page: number,
+  ) {
+    return this.providersService.findAllProviders(user.id, page, limit);
   }
 }
