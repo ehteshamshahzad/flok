@@ -103,4 +103,15 @@ export class UsersService {
   async findUserIdByIdUserType(id: string, userType: UserType) {
     return this.usersRepository.findOne({ where: { id, userType }, select: { id: true } });
   }
+
+  async findUserIdProfileImageURLProfileImageKeyById(id: string): Promise<User> {
+    if (!id) {
+      return null;
+    }
+    return this.usersRepository.findOne({ where: { id: id }, select: { id: true, profileImageURL: true, profileImageKey: true } });
+  }
+
+  async updateUserImage(user: User) {
+    return await this.usersRepository.update(user.id, user)
+  }
 }

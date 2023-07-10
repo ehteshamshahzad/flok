@@ -12,6 +12,7 @@ import { config } from './orm.config';
 import { ParentsModule } from './parents/parents.module';
 import { ProvidersModule } from './providers/providers.module';
 import { UsersModule } from './users/users.module';
+import { ImageUploadModule } from './image-upload/image-upload.module';
 
 @Module({
   imports: [
@@ -53,7 +54,8 @@ import { UsersModule } from './users/users.module';
     CategoriesModule,
     ProvidersModule,
     EventsModule,
-    ParentsModule
+    ParentsModule,
+    ImageUploadModule
   ],
   controllers: [AppController],
   providers: [AppService],

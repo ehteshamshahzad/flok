@@ -329,4 +329,14 @@ export class EventsService {
     await this.eventsRepository.update(event.id, event);
     return event;
   }
+
+  async findEventIdMissionStatementImageURLAndKeyByUserId(userId: string) {
+
+    // const event: Event = await this.eventsRepository.findOne({where: {provider: {}}})
+    const provider = await this.providerService.findMyProvider(userId);
+    const event = await this.eventsRepository.findOne({ where: { providerId: provider.id } });
+
+
+    return event;
+  }
 }
