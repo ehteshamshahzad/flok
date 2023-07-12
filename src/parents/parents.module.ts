@@ -7,6 +7,6 @@ import { ParentsService } from './parents.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Child, Contact])],
-  providers: [ParentsResolver, ParentsService]
+  providers: [ParentsResolver, ParentsService],
 })
-export class ParentsModule { }
+export class ParentsModule {}

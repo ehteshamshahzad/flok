@@ -42,13 +42,11 @@ import { EmailsModule } from './emails/emails.module';
       //   };
       // },
     }),
-    ConfigModule.forRoot(
-      {
-        envFilePath: ['.env.beta', '.env'],
-        ignoreEnvFile: false,
-        isGlobal: true,
-      }
-    ),
+    ConfigModule.forRoot({
+      envFilePath: ['.env.beta', '.env'],
+      ignoreEnvFile: false,
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot(config),
     UsersModule,
     AuthModule,
@@ -57,9 +55,9 @@ import { EmailsModule } from './emails/emails.module';
     EventsModule,
     ParentsModule,
     ImageUploadModule,
-    EmailsModule
+    EmailsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

@@ -3,7 +3,6 @@ import { IsNotEmpty, IsNumber, IsUUID } from 'class-validator';
 
 @InputType()
 export class CreateTicketInput {
-
   @IsUUID()
   @IsNotEmpty()
   @Field(() => String, { description: 'Example field (placeholder)' })

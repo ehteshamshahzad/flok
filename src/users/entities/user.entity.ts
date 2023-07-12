@@ -14,7 +14,6 @@ import { UserType } from './user-type.enum';
 @Entity('user')
 @ObjectType()
 export class User extends BaseEntity {
-
   @Column({ nullable: false, unique: true, length: 100 })
   @Field({ nullable: false, description: `User's email` })
   email: string;
@@ -28,7 +27,10 @@ export class User extends BaseEntity {
   password: string;
 
   @Column({ nullable: false, default: 'parent', length: 8 })
-  @Field({ nullable: false, description: `User type: 'Parent' | 'Admin' | 'Provider'` })
+  @Field({
+    nullable: false,
+    description: `User type: 'Parent' | 'Admin' | 'Provider'`,
+  })
   userType: UserType;
 
   @Column({ nullable: true })
@@ -44,7 +46,10 @@ export class User extends BaseEntity {
   dateOfBirth: Date;
 
   @Column({ nullable: false, default: 'Unverified', length: 10 })
-  @Field(() => AccountStatus, { nullable: false, description: `User's account status: 'Active' | 'Deleted' | 'Suspended' | 'Unverified'` })
+  @Field(() => AccountStatus, {
+    nullable: false,
+    description: `User's account status: 'Active' | 'Deleted' | 'Suspended' | 'Unverified'`,
+  })
   accountStatus: AccountStatus;
 
   @Column({ nullable: true, unique: false })
@@ -56,17 +61,30 @@ export class User extends BaseEntity {
   providerStaffId: string;
 
   @Field(() => ProviderStaff, { description: 'Provider', nullable: true })
-  @OneToOne(() => ProviderStaff, (providerStaff: ProviderStaff) => providerStaff.user, { createForeignKeyConstraints: false })
+  @OneToOne(
+    () => ProviderStaff,
+    (providerStaff: ProviderStaff) => providerStaff.user,
+    { createForeignKeyConstraints: false }
+  )
   @JoinColumn({ name: 'providerStaffId' })
   providerStaff: ProviderStaff;
 
-  @OneToMany(() => FlaggedInappropriate, (flags: FlaggedInappropriate) => flags.user)
+  @OneToMany(
+    () => FlaggedInappropriate,
+    (flags: FlaggedInappropriate) => flags.user
+  )
   flags: FlaggedInappropriate[];
 
-  @OneToMany(() => EventWaitingList, (eventWaitingList: EventWaitingList) => eventWaitingList.user)
+  @OneToMany(
+    () => EventWaitingList,
+    (eventWaitingList: EventWaitingList) => eventWaitingList.user
+  )
   eventWaitingList: EventWaitingList[];
 
-  @OneToMany(() => EventReview, (eventReviews: EventReview) => eventReviews.user)
+  @OneToMany(
+    () => EventReview,
+    (eventReviews: EventReview) => eventReviews.user
+  )
   eventReviews: EventReview[];
 
   @Field(() => [Child], { description: 'User children', nullable: true })
@@ -77,7 +95,10 @@ export class User extends BaseEntity {
   @OneToMany(() => Contact, (contacts: Contact) => contacts.user)
   contacts: Contact[];
 
-  @Field(() => [Ticket], { description: 'Tickets purchased by user', nullable: true })
+  @Field(() => [Ticket], {
+    description: 'Tickets purchased by user',
+    nullable: true,
+  })
   @OneToMany(() => Ticket, (contacts: Ticket) => contacts.user)
   tickets: Ticket[];
 }

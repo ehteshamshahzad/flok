@@ -5,6 +5,6 @@ import { ImageUploadService } from './image-upload.service';
 
 @Module({
   imports: [UsersModule],
-  providers: [ImageUploadResolver, ImageUploadService]
+  providers: [ImageUploadResolver, ImageUploadService],
 })
-export class ImageUploadModule { }
+export class ImageUploadModule {}

@@ -3,7 +3,6 @@ import { IsString, MinLength } from 'class-validator';
 
 @InputType()
 export class CreateCategoryInput {
-
   @IsString()
   @MinLength(3)
   @Field({ nullable: false, description: `Name in English` })

@@ -15,9 +15,10 @@ import { Ticket } from './ticket.entity';
 @Entity('event')
 @ObjectType()
 export class Event extends BaseEntity {
-
   @Column({ nullable: false, unique: false, length: 36 })
-  @Field(() => String, { description: 'Id of Provider who is hosting this event' })
+  @Field(() => String, {
+    description: 'Id of Provider who is hosting this event',
+  })
   providerId: string;
   provider: Provider;
 
@@ -50,42 +51,84 @@ export class Event extends BaseEntity {
   maxAge: number;
 
   @Column({ nullable: false, unique: false })
-  @Field(() => String, { description: 'Last date to register for a given event' })
+  @Field(() => String, {
+    description: 'Last date to register for a given event',
+  })
   registrationDeadline: Date;
 
   @Column({ nullable: false, unique: false, default: EventStatus.DRAFT })
-  @Field(() => String, { description: 'Current status of the event: "Draft" | "Published" | "Archive" | "Private" | "Deleted"' })
+  @Field(() => String, {
+    description:
+      'Current status of the event: "Draft" | "Published" | "Archive" | "Private" | "Deleted"',
+  })
   status: EventStatus;
 
-  @OneToMany(() => EventPicture, (eventPictures: EventPicture) => eventPictures.event)
-  @Field(() => [EventPicture], { nullable: true, description: 'List of event pictures' })
+  @OneToMany(
+    () => EventPicture,
+    (eventPictures: EventPicture) => eventPictures.event
+  )
+  @Field(() => [EventPicture], {
+    nullable: true,
+    description: 'List of event pictures',
+  })
   eventPictures: EventPicture[];
 
-  @OneToMany(() => EventMultiLangauge, (eventMultiLangauges: EventMultiLangauge) => eventMultiLangauges.event)
-  @Field(() => [EventMultiLangauge], { description: 'List of event details in different languages' })
+  @OneToMany(
+    () => EventMultiLangauge,
+    (eventMultiLangauges: EventMultiLangauge) => eventMultiLangauges.event
+  )
+  @Field(() => [EventMultiLangauge], {
+    description: 'List of event details in different languages',
+  })
   eventMultiLanguages: EventMultiLangauge[];
 
-  @OneToMany(() => EventReview, (eventReviews: EventReview) => eventReviews.event)
+  @OneToMany(
+    () => EventReview,
+    (eventReviews: EventReview) => eventReviews.event
+  )
   @Field(() => [EventReview], { nullable: true, description: 'Event reviews' })
   eventReviews: EventReview[];
 
-  @OneToMany(() => EventWaitingList, (eventWaitingList: EventWaitingList) => eventWaitingList.event)
-  @Field(() => [EventWaitingList], { nullable: true, description: 'Waiting list of an event' })
+  @OneToMany(
+    () => EventWaitingList,
+    (eventWaitingList: EventWaitingList) => eventWaitingList.event
+  )
+  @Field(() => [EventWaitingList], {
+    nullable: true,
+    description: 'Waiting list of an event',
+  })
   eventWaitingLists: EventWaitingList[];
 
-  @OneToMany(() => FlaggedInappropriate, (flags: FlaggedInappropriate) => flags.event)
-  @Field(() => [FlaggedInappropriate], { nullable: true, description: 'Complaints against an event' })
+  @OneToMany(
+    () => FlaggedInappropriate,
+    (flags: FlaggedInappropriate) => flags.event
+  )
+  @Field(() => [FlaggedInappropriate], {
+    nullable: true,
+    description: 'Complaints against an event',
+  })
   flags: FlaggedInappropriate[];
 
-  @OneToMany(() => RecurringEvent, (recurringEvents: RecurringEvent) => recurringEvents.event)
+  @OneToMany(
+    () => RecurringEvent,
+    (recurringEvents: RecurringEvent) => recurringEvents.event
+  )
   @Field(() => [RecurringEvent], { description: 'Event recurring date' })
   recurringEvents: RecurringEvent[];
 
-  @OneToMany(() => EventCategory, (eventCategories: EventCategory) => eventCategories.event)
-  @Field(() => [EventCategory], { description: 'List of categories an event belongs to' })
+  @OneToMany(
+    () => EventCategory,
+    (eventCategories: EventCategory) => eventCategories.event
+  )
+  @Field(() => [EventCategory], {
+    description: 'List of categories an event belongs to',
+  })
   eventCategories: EventCategory[];
 
   @OneToMany(() => Ticket, (contacts: Ticket) => contacts.user)
-  @Field(() => [Ticket], { description: 'Tickets belonging to an event', nullable: true })
+  @Field(() => [Ticket], {
+    description: 'Tickets belonging to an event',
+    nullable: true,
+  })
   tickets: Ticket[];
 }

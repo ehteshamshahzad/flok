@@ -8,7 +8,7 @@ import { RegisterUserInput } from './dto/register-user.input';
 
 @Resolver(() => User)
 export class AuthResolver {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   @Query(() => LoginUserResponse, { name: 'loginUser' })
   loginUser(@Args('loginUserInput') loginUserInput: LoginUserInput) {
@@ -16,7 +16,9 @@ export class AuthResolver {
   }
 
   @Mutation(() => RegisterUserResponseDto, { name: 'registerUser' })
-  registerUser(@Args('registerUserInput') registerUserInput: RegisterUserInput) {
+  registerUser(
+    @Args('registerUserInput') registerUserInput: RegisterUserInput
+  ) {
     return this.authService.register(registerUserInput);
   }
 }

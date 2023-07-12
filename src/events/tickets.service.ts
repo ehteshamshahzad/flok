@@ -7,13 +7,15 @@ import { Ticket } from './entities/ticket.entity';
 
 @Injectable()
 export class TicketsService {
-
   constructor(
-    @InjectRepository(Ticket) private readonly ticketsRepository: Repository<Ticket>
-  ) { }
+    @InjectRepository(Ticket)
+    private readonly ticketsRepository: Repository<Ticket>
+  ) {}
 
-  async create(numberOfTickets: number, createTicketInput: CreateTicketInput): Promise<Ticket[]> {
-
+  async create(
+    numberOfTickets: number,
+    createTicketInput: CreateTicketInput
+  ): Promise<Ticket[]> {
     const ticketsPromise: Promise<Ticket>[] = [];
     const tickets: Ticket[] = [];
 
@@ -23,7 +25,6 @@ export class TicketsService {
       ticket.eventId = createTicketInput.eventId;
       ticket.price = createTicketInput.price;
       ticketsPromise.push(this.ticketsRepository.save(ticket));
-
 
       if (ticketsPromise.length > 5) {
         while (ticketsPromise.length !== 0) {
@@ -47,24 +48,27 @@ export class TicketsService {
    * 2. Check event status (DRAFT, ARCHIEVE, PRIVATE, or DELETED). And prevent ticket purchase in those cases
    * 3. Only allow user of type PARENT to buy tickets
    */
-  async purchaseTickets(userId: string, purchaseTicketsInput: PurchaseTicketsInput): Promise<Ticket[]> {
-
+  async purchaseTickets(
+    userId: string,
+    purchaseTicketsInput: PurchaseTicketsInput
+  ): Promise<Ticket[]> {
     const eventTickets: Ticket[] = await this.ticketsRepository.find({
       where: {
         eventId: purchaseTicketsInput.eventId,
-        userId: IsNull()
+        userId: IsNull(),
       },
-      take: purchaseTicketsInput.numberOfTickets
+      take: purchaseTicketsInput.numberOfTickets,
     });
 
     if (purchaseTicketsInput.numberOfTickets !== eventTickets.length) {
-      throw new HttpException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        error: 'Request failed',
-        message: [
-          'Not enough tickets are available'
-        ]
-      }, HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.BAD_REQUEST,
+          error: 'Request failed',
+          message: ['Not enough tickets are available'],
+        },
+        HttpStatus.BAD_REQUEST
+      );
     }
 
     for (let i = 0; i < eventTickets.length; i++) {
@@ -92,6 +96,5 @@ export class TicketsService {
     return `This action removes a #${id} ticket`;
   }
 }
-
 
 // eventId: 224cc68f-9177-44a9-abf5-df2bc19014dc

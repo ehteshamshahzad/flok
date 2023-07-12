@@ -7,7 +7,6 @@ import { Gender } from './gender.enum';
 @Entity('child')
 @ObjectType()
 export class Child extends BaseEntity {
-
   @Column({ unique: false, nullable: false, length: 50 })
   @Field(() => String, { description: 'Name of the child', nullable: true })
   name: string;
@@ -24,7 +23,9 @@ export class Child extends BaseEntity {
   @Field(() => String, { description: 'Parent user id', nullable: true })
   userId: string;
 
-  @ManyToOne(() => User, (user: User) => user.children, { createForeignKeyConstraints: false })
+  @ManyToOne(() => User, (user: User) => user.children, {
+    createForeignKeyConstraints: false,
+  })
   @JoinColumn({ name: 'userId' })
   @Field(() => User, { description: 'Parent user', nullable: true })
   user: User;

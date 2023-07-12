@@ -13,29 +13,41 @@ import { ProvidersService } from './providers.service';
 
 @Resolver(() => Provider)
 export class ProvidersResolver {
-  constructor(private readonly providersService: ProvidersService) { }
+  constructor(private readonly providersService: ProvidersService) {}
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Provider, { name: 'registerProvider' })
-  createProvider(@CurrentUser() user: User, @Args('createProviderInput') createProviderInput: CreateProviderInput) {
+  createProvider(
+    @CurrentUser() user: User,
+    @Args('createProviderInput') createProviderInput: CreateProviderInput
+  ) {
     return this.providersService.create(user.id, createProviderInput);
   }
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => ProviderStaff, { name: 'inviteStaff' })
-  inviteStaff(@CurrentUser() user: User, @Args('inviteStaff') inviteStaffInput: InviteStaffInput) {
+  inviteStaff(
+    @CurrentUser() user: User,
+    @Args('inviteStaff') inviteStaffInput: InviteStaffInput
+  ) {
     return this.providersService.inviteStaff(user.id, inviteStaffInput);
   }
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => ProviderStaff, { name: 'terminateStaff' })
-  terminateStaff(@CurrentUser() user: User, @Args('terminateStaffInput') terminateStaffInput: TerminateStaffInput) {
+  terminateStaff(
+    @CurrentUser() user: User,
+    @Args('terminateStaffInput') terminateStaffInput: TerminateStaffInput
+  ) {
     return this.providersService.terminateStaff(user.id, terminateStaffInput);
   }
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Provider, { name: 'updateProvider' })
-  updateProvider(@CurrentUser() user: User, @Args('updateProviderInput') updateProviderInput: UpdateProviderInput) {
+  updateProvider(
+    @CurrentUser() user: User,
+    @Args('updateProviderInput') updateProviderInput: UpdateProviderInput
+  ) {
     return this.providersService.update(user.id, updateProviderInput);
   }
 

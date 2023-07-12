@@ -1,8 +1,7 @@
-
-import { Field, ObjectType } from "@nestjs/graphql";
+import { Field, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
 export class ImageKeyDto {
-    @Field(() => String)
-    key: string;
+  @Field(() => String)
+  key: string;
 }

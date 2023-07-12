@@ -1,12 +1,11 @@
-import { baseTemplate } from "./base-template";
+import { baseTemplate } from './base-template';
 
 export function introduction() {
-    return baseTemplate(
-        `
+  return baseTemplate(
+    `
         <p>
         Hi! Welcome to Flok!
         </p>
         `
-    );
-
+  );
 }

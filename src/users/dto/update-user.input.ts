@@ -3,7 +3,6 @@ import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 @InputType()
 export class UpdateUserInput {
-
   @IsString()
   @IsNotEmpty()
   @Field(() => String)
@@ -18,5 +17,4 @@ export class UpdateUserInput {
   @IsOptional()
   @Field(() => String, { nullable: true })
   profileImageURL?: string;
-
 }

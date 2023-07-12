@@ -10,11 +10,14 @@ import { Category } from './entities/category.entity';
 
 @Resolver(() => Category)
 export class CategoriesResolver {
-  constructor(private readonly categoriesService: CategoriesService) { }
+  constructor(private readonly categoriesService: CategoriesService) {}
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Category)
-  createCategory(@CurrentUser() user: User, @Args('createCategoryInput') createCategoryInput: CreateCategoryInput) {
+  createCategory(
+    @CurrentUser() user: User,
+    @Args('createCategoryInput') createCategoryInput: CreateCategoryInput
+  ) {
     return this.categoriesService.create(createCategoryInput);
   }
 
@@ -34,8 +37,13 @@ export class CategoriesResolver {
   }
 
   @Mutation(() => Category)
-  updateCategory(@Args('updateCategoryInput') updateCategoryInput: UpdateCategoryInput) {
-    return this.categoriesService.update(updateCategoryInput.id, updateCategoryInput);
+  updateCategory(
+    @Args('updateCategoryInput') updateCategoryInput: UpdateCategoryInput
+  ) {
+    return this.categoriesService.update(
+      updateCategoryInput.id,
+      updateCategoryInput
+    );
   }
 
   @Mutation(() => Category)
