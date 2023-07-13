@@ -3,7 +3,6 @@ import { EmailsService } from './emails.service';
 
 @Module({
   providers: [EmailsService],
-  exports: [EmailsService]
-
+  exports: [EmailsService],
 })
-export class EmailsModule { }
+export class EmailsModule {}

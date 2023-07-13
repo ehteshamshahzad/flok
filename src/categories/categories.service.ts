@@ -8,40 +8,64 @@ import { seedCategories } from './seed';
 
 @Injectable()
 export class CategoriesService {
-
-  constructor(@InjectRepository(Category) private readonly categoriesRepository: Repository<Category>) { }
+  constructor(
+    @InjectRepository(Category)
+    private readonly categoriesRepository: Repository<Category>
+  ) {}
 
   async create(createCategoryInput: CreateCategoryInput) {
-
-    const categoryENPromise = this.categoriesRepository.findOne({ where: { nameEN: createCategoryInput.nameEN }, select: { id: true } });
-    const categoryFRPromise = this.categoriesRepository.findOne({ where: { nameFR: createCategoryInput.nameFR }, select: { id: true } });
-    const categoryDEPromise = this.categoriesRepository.findOne({ where: { nameDE: createCategoryInput.nameDE }, select: { id: true } });
-    const categoryITPromise = this.categoriesRepository.findOne({ where: { nameIT: createCategoryInput.nameIT }, select: { id: true } });
+    const categoryENPromise = this.categoriesRepository.findOne({
+      where: { nameEN: createCategoryInput.nameEN },
+      select: { id: true },
+    });
+    const categoryFRPromise = this.categoriesRepository.findOne({
+      where: { nameFR: createCategoryInput.nameFR },
+      select: { id: true },
+    });
+    const categoryDEPromise = this.categoriesRepository.findOne({
+      where: { nameDE: createCategoryInput.nameDE },
+      select: { id: true },
+    });
+    const categoryITPromise = this.categoriesRepository.findOne({
+      where: { nameIT: createCategoryInput.nameIT },
+      select: { id: true },
+    });
 
     const errorMessages: string[] = [];
 
     if (await categoryENPromise) {
-      errorMessages.push(`Category with the name ${createCategoryInput.nameEN} already exists`);
+      errorMessages.push(
+        `Category with the name ${createCategoryInput.nameEN} already exists`
+      );
     }
 
     if (await categoryFRPromise) {
-      errorMessages.push(`Category with the name ${createCategoryInput.nameFR} already exists`);
+      errorMessages.push(
+        `Category with the name ${createCategoryInput.nameFR} already exists`
+      );
     }
 
     if (await categoryDEPromise) {
-      errorMessages.push(`Category with the name ${createCategoryInput.nameDE} already exists`);
+      errorMessages.push(
+        `Category with the name ${createCategoryInput.nameDE} already exists`
+      );
     }
 
     if (await categoryITPromise) {
-      errorMessages.push(`Category with the name ${createCategoryInput.nameIT} already exists`);
+      errorMessages.push(
+        `Category with the name ${createCategoryInput.nameIT} already exists`
+      );
     }
 
     if (errorMessages.length > 0) {
-      throw new HttpException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        error: 'Category already exists',
-        message: errorMessages
-      }, HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.BAD_REQUEST,
+          error: 'Category already exists',
+          message: errorMessages,
+        },
+        HttpStatus.BAD_REQUEST
+      );
     }
 
     const category = new Category();
@@ -63,7 +87,6 @@ export class CategoriesService {
   }
 
   async seed() {
-
     const savedCategoriesPromise: Promise<Category>[] = [];
 
     for (let i = 0; i < seedCategories.length; i++) {
@@ -90,7 +113,9 @@ export class CategoriesService {
 
   async remove(id: number) {
     const categories = await this.categoriesRepository.find();
-    await Promise.all(categories.map(x => this.categoriesRepository.delete(x.id)));
+    await Promise.all(
+      categories.map((x) => this.categoriesRepository.delete(x.id))
+    );
     const categoriesLeft = await this.categoriesRepository.find();
     return categoriesLeft;
   }

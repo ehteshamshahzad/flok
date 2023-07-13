@@ -6,7 +6,6 @@ import { Column, Entity, OneToMany } from 'typeorm';
 @Entity('category')
 @ObjectType()
 export class Category extends BaseEntity {
-
   @Field({ nullable: false, description: `Name in English` })
   @Column({ nullable: false, unique: true, length: 60 })
   nameEN: string;
@@ -23,6 +22,9 @@ export class Category extends BaseEntity {
   @Column({ nullable: true, unique: false, length: 60 })
   nameIT: string;
 
-  @OneToMany(() => EventCategory, (eventCategorys: EventCategory) => eventCategorys.category)
+  @OneToMany(
+    () => EventCategory,
+    (eventCategorys: EventCategory) => eventCategorys.category
+  )
   eventCategories: EventCategory[];
 }

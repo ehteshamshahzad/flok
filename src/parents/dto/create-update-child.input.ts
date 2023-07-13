@@ -1,10 +1,16 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { IsDate, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
+import {
+  IsDate,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 import { Gender } from '../entities/gender.enum';
 
 @InputType()
 export class CreateUpdateChildInput {
-
   @IsUUID()
   @IsOptional()
   @Field(() => String, { description: 'Id of the child', nullable: true })
@@ -22,5 +28,4 @@ export class CreateUpdateChildInput {
   @IsEnum(Gender)
   @Field(() => Gender, { description: 'Gender of the child', nullable: false })
   gender: Gender;
-
 }

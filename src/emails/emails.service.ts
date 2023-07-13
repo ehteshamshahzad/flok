@@ -5,8 +5,7 @@ import { MailgunEmail } from './platform/mailgun';
 
 @Injectable()
 export class EmailsService {
-
-  constructor(private readonly configService: ConfigService) { }
+  constructor(private readonly configService: ConfigService) {}
 
   async sendEmail(emailDataDto: EmailDataDto) {
     return new MailgunEmail(this.configService).sendMailgun(emailDataDto);

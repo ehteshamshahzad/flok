@@ -6,7 +6,6 @@ import { ProviderStaff } from './provider-staff.entity';
 @Entity('provider')
 @ObjectType()
 export class Provider extends BaseEntity {
-
   @Field({ nullable: false, description: `Name of Provider` })
   @Column({ nullable: false, unique: false, length: 50 })
   name: string;
@@ -39,7 +38,13 @@ export class Provider extends BaseEntity {
   @Column({ nullable: false, unique: true, length: 100 })
   email: string;
 
-  @Field(() => [ProviderStaff], { nullable: true, description: `List of staff belonging to a provider` })
-  @OneToMany(() => ProviderStaff, (providerStaff: ProviderStaff) => providerStaff.provider)
+  @Field(() => [ProviderStaff], {
+    nullable: true,
+    description: `List of staff belonging to a provider`,
+  })
+  @OneToMany(
+    () => ProviderStaff,
+    (providerStaff: ProviderStaff) => providerStaff.provider
+  )
   providerStaff: ProviderStaff[];
 }

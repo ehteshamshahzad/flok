@@ -16,17 +16,21 @@ import { EventsService } from './events.service';
 import { TicketsService } from './tickets.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([
-    Event,
-    EventCategory,
-    EventMultiLangauge,
-    EventPicture,
-    RecurringEvent,
-    EventReview,
-    EventWaitingList,
-    FlaggedInappropriate,
-    Ticket
-  ]), UsersModule, ProvidersModule],
-  providers: [EventsResolver, EventsService, TicketsService]
+  imports: [
+    TypeOrmModule.forFeature([
+      Event,
+      EventCategory,
+      EventMultiLangauge,
+      EventPicture,
+      RecurringEvent,
+      EventReview,
+      EventWaitingList,
+      FlaggedInappropriate,
+      Ticket,
+    ]),
+    UsersModule,
+    ProvidersModule,
+  ],
+  providers: [EventsResolver, EventsService, TicketsService],
 })
-export class EventsModule { }
+export class EventsModule {}

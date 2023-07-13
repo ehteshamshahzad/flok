@@ -24,20 +24,27 @@ import { TicketsService } from './tickets.service';
 
 @Injectable()
 export class EventsService {
-
   constructor(
-    @InjectRepository(Event) private readonly eventsRepository: Repository<Event>,
-    @InjectRepository(EventCategory) private readonly eventCategoriesRepository: Repository<EventCategory>,
-    @InjectRepository(EventMultiLangauge) private readonly eventMultiLangaugesRepository: Repository<EventMultiLangauge>,
-    @InjectRepository(EventPicture) private readonly eventPicturesRepository: Repository<EventPicture>,
-    @InjectRepository(RecurringEvent) private readonly recurringEventsRepository: Repository<RecurringEvent>,
-    @InjectRepository(EventReview) private readonly eventReviewsRepository: Repository<EventReview>,
-    @InjectRepository(EventWaitingList) private readonly eventWaitingListsRepository: Repository<EventWaitingList>,
-    @InjectRepository(FlaggedInappropriate) private readonly flaggedInappropriateRepository: Repository<FlaggedInappropriate>,
+    @InjectRepository(Event)
+    private readonly eventsRepository: Repository<Event>,
+    @InjectRepository(EventCategory)
+    private readonly eventCategoriesRepository: Repository<EventCategory>,
+    @InjectRepository(EventMultiLangauge)
+    private readonly eventMultiLangaugesRepository: Repository<EventMultiLangauge>,
+    @InjectRepository(EventPicture)
+    private readonly eventPicturesRepository: Repository<EventPicture>,
+    @InjectRepository(RecurringEvent)
+    private readonly recurringEventsRepository: Repository<RecurringEvent>,
+    @InjectRepository(EventReview)
+    private readonly eventReviewsRepository: Repository<EventReview>,
+    @InjectRepository(EventWaitingList)
+    private readonly eventWaitingListsRepository: Repository<EventWaitingList>,
+    @InjectRepository(FlaggedInappropriate)
+    private readonly flaggedInappropriateRepository: Repository<FlaggedInappropriate>,
     private readonly usersService: UsersService,
     private readonly providerService: ProvidersService,
     private readonly ticketsService: TicketsService
-  ) { }
+  ) {}
 
   /**
    * Requirements:
@@ -47,28 +54,35 @@ export class EventsService {
    * 4. Assign categories to event*
    * 5. Assign recurring dates to event
    */
-  async createEvent(userId: string, createEventInput: CreateEventInput): Promise<Event> {
-
+  async createEvent(
+    userId: string,
+    createEventInput: CreateEventInput
+  ): Promise<Event> {
     if (createEventInput.numberOfTickets < 1) {
-      throw new HttpException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        error: 'Invalid tickets',
-        message: [
-          'Tickets cannot be less than 1'
-        ]
-      }, HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.BAD_REQUEST,
+          error: 'Invalid tickets',
+          message: ['Tickets cannot be less than 1'],
+        },
+        HttpStatus.BAD_REQUEST
+      );
     }
 
-    const validStaff: ProviderStaff = await this.providerService.findProviderStaffIdProviderIdByUserIdEmployeedOrOwner(userId);
+    const validStaff: ProviderStaff =
+      await this.providerService.findProviderStaffIdProviderIdByUserIdEmployeedOrOwner(
+        userId
+      );
 
     if (!validStaff) {
-      throw new HttpException({
-        statusCode: HttpStatus.NOT_FOUND,
-        error: 'Not found',
-        message: [
-          'Invalid user or provider'
-        ]
-      }, HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.NOT_FOUND,
+          error: 'Not found',
+          message: ['Invalid user or provider'],
+        },
+        HttpStatus.NOT_FOUND
+      );
     }
 
     const event = new Event();
@@ -84,12 +98,22 @@ export class EventsService {
 
     const savedEvent = await this.eventsRepository.save(event);
 
-    const [eventMultiLangauges, eventCategories, recurringEvents, tickets] = await Promise.all([
-      this.createMultiLanguageEvents(savedEvent.id, createEventInput.eventDetails),
-      this.createEventCategories(savedEvent.id, createEventInput.categoryIds),
-      this.assigningRecurringEventDates(savedEvent.id, createEventInput.recurringDates),
-      this.ticketsService.create(createEventInput.numberOfTickets, { eventId: event.id, price: createEventInput.price })
-    ]);
+    const [eventMultiLangauges, eventCategories, recurringEvents, tickets] =
+      await Promise.all([
+        this.createMultiLanguageEvents(
+          savedEvent.id,
+          createEventInput.eventDetails
+        ),
+        this.createEventCategories(savedEvent.id, createEventInput.categoryIds),
+        this.assigningRecurringEventDates(
+          savedEvent.id,
+          createEventInput.recurringDates
+        ),
+        this.ticketsService.create(createEventInput.numberOfTickets, {
+          eventId: event.id,
+          price: createEventInput.price,
+        }),
+      ]);
 
     event.eventMultiLanguages = eventMultiLangauges;
     event.eventCategories = eventCategories;
@@ -99,8 +123,10 @@ export class EventsService {
     return event;
   }
 
-  async createMultiLanguageEvents(savedEventId: string, eventDetails: EventDetailsInput[]) {
-
+  async createMultiLanguageEvents(
+    savedEventId: string,
+    eventDetails: EventDetailsInput[]
+  ) {
     const eventMultiLangaugePromises: Promise<EventMultiLangauge>[] = [];
     for (let i = 0; i < eventDetails.length; i++) {
       const eventMultiLangauge = new EventMultiLangauge();
@@ -110,7 +136,9 @@ export class EventsService {
       eventMultiLangauge.eventId = savedEventId;
       eventMultiLangauge.language = eventDetails[i].language;
 
-      eventMultiLangaugePromises.push(this.eventMultiLangaugesRepository.save(eventMultiLangauge));
+      eventMultiLangaugePromises.push(
+        this.eventMultiLangaugesRepository.save(eventMultiLangauge)
+      );
     }
 
     const eventMultiLangauge: EventMultiLangauge[] = [];
@@ -128,7 +156,9 @@ export class EventsService {
       eventCategory.setId = undefined;
       eventCategory.categoryId = categoryIds[i];
       eventCategory.eventId = savedEventId;
-      eventCategoryPromises.push(this.eventCategoriesRepository.save(eventCategory));
+      eventCategoryPromises.push(
+        this.eventCategoriesRepository.save(eventCategory)
+      );
     }
     const eventCategory: EventCategory[] = [];
 
@@ -139,8 +169,10 @@ export class EventsService {
     return eventCategory;
   }
 
-  async assigningRecurringEventDates(savedEventId: string, recurringDates: Date[]) {
-
+  async assigningRecurringEventDates(
+    savedEventId: string,
+    recurringDates: Date[]
+  ) {
     const recurringEventPromises: Promise<RecurringEvent>[] = [];
 
     for (let i = 0; i < recurringDates.length; i++) {
@@ -148,7 +180,9 @@ export class EventsService {
       recurringEvent.setId = undefined;
       recurringEvent.date = recurringDates[i];
       recurringEvent.eventId = savedEventId;
-      recurringEventPromises.push(this.recurringEventsRepository.save(recurringEvent));
+      recurringEventPromises.push(
+        this.recurringEventsRepository.save(recurringEvent)
+      );
     }
 
     const recurringEvent: RecurringEvent[] = [];
@@ -160,27 +194,30 @@ export class EventsService {
   }
 
   async findAllProviderEvents(userId: string) {
-    const providerStaff: ProviderStaff = await this.providerService.findProviderStaffProviderIdByUserIdEmployeedOrOwner(userId);
+    const providerStaff: ProviderStaff =
+      await this.providerService.findProviderStaffProviderIdByUserIdEmployeedOrOwner(
+        userId
+      );
     const events: Event[] = await this.eventsRepository.find({
       where: { providerId: providerStaff.providerId },
       relations: {
         eventCategories: true,
         recurringEvents: true,
-        eventMultiLanguages: true
-      }
+        eventMultiLanguages: true,
+      },
     });
     return events;
   }
 
   /**
    * TODO: Save multiple events first
-   * Conditions: 
+   * Conditions:
    * 1. Date range
    * 2. Longitude and latitude
    * 3. Category
    * 4. Provider
    * 5. Name
-   * 
+   *
    * * Some combination
    * * Pagination
    */
@@ -194,19 +231,24 @@ export class EventsService {
 
   // Pending
   async update(userId: string, updateEventInput: UpdateEventInput) {
+    const provider =
+      await this.providerService.findProviderStaffIdProviderIdByUserIdEmployeedOrOwner(
+        userId
+      );
 
-    const provider = await this.providerService.findProviderStaffIdProviderIdByUserIdEmployeedOrOwner(userId);
-
-    const event = await this.eventsRepository.findOne({ where: { id: updateEventInput.id } });
+    const event = await this.eventsRepository.findOne({
+      where: { id: updateEventInput.id },
+    });
 
     if (!event) {
-      throw new HttpException({
-        statusCode: HttpStatus.NOT_FOUND,
-        error: 'Not found',
-        message: [
-          'Event not found'
-        ]
-      }, HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.NOT_FOUND,
+          error: 'Not found',
+          message: ['Event not found'],
+        },
+        HttpStatus.NOT_FOUND
+      );
     }
 
     return event;
@@ -216,31 +258,41 @@ export class EventsService {
    * Requirements:
    * 1. User of type parent who is flagging the event
    * 2. Check if event exists
-   * 3. 
+   * 3.
    */
-  async flagEvent(userId: string, flaggedInappropriateInput: FlaggedInappropriateInput) {
-
-    const eventPromise = this.eventsRepository.findOne({ where: { id: flaggedInappropriateInput.eventId }, select: { id: true } });
-    const user = await this.usersService.findUserIdByIdUserType(userId, UserType.PARENT);
+  async flagEvent(
+    userId: string,
+    flaggedInappropriateInput: FlaggedInappropriateInput
+  ) {
+    const eventPromise = this.eventsRepository.findOne({
+      where: { id: flaggedInappropriateInput.eventId },
+      select: { id: true },
+    });
+    const user = await this.usersService.findUserIdByIdUserType(
+      userId,
+      UserType.PARENT
+    );
     if (!user) {
-      throw new HttpException({
-        statusCode: HttpStatus.NOT_FOUND,
-        error: 'Not found',
-        message: [
-          'Parent not found'
-        ]
-      }, HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.NOT_FOUND,
+          error: 'Not found',
+          message: ['Parent not found'],
+        },
+        HttpStatus.NOT_FOUND
+      );
     }
 
     const event = await eventPromise;
     if (!event) {
-      throw new HttpException({
-        statusCode: HttpStatus.NOT_FOUND,
-        error: 'Not found',
-        message: [
-          'Event not found'
-        ]
-      }, HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.NOT_FOUND,
+          error: 'Not found',
+          message: ['Event not found'],
+        },
+        HttpStatus.NOT_FOUND
+      );
     }
 
     const flaggedInappropriate = new FlaggedInappropriate();
@@ -250,33 +302,39 @@ export class EventsService {
     flaggedInappropriate.description = flaggedInappropriateInput.description;
 
     return await this.flaggedInappropriateRepository.save(flaggedInappropriate);
-
   }
 
   async createEventReview(userId: string, eventReviewInput: EventReviewInput) {
-
-    const eventPromise = this.eventsRepository.findOne({ where: { id: eventReviewInput.eventId }, select: { id: true } });
-    const user = await this.usersService.findUserIdByIdUserType(userId, UserType.PARENT);
+    const eventPromise = this.eventsRepository.findOne({
+      where: { id: eventReviewInput.eventId },
+      select: { id: true },
+    });
+    const user = await this.usersService.findUserIdByIdUserType(
+      userId,
+      UserType.PARENT
+    );
 
     if (!user) {
-      throw new HttpException({
-        statusCode: HttpStatus.NOT_FOUND,
-        error: 'Not found',
-        message: [
-          'Parent not found'
-        ]
-      }, HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.NOT_FOUND,
+          error: 'Not found',
+          message: ['Parent not found'],
+        },
+        HttpStatus.NOT_FOUND
+      );
     }
 
     const event = await eventPromise;
     if (!event) {
-      throw new HttpException({
-        statusCode: HttpStatus.NOT_FOUND,
-        error: 'Not found',
-        message: [
-          'Event not found'
-        ]
-      }, HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.NOT_FOUND,
+          error: 'Not found',
+          message: ['Event not found'],
+        },
+        HttpStatus.NOT_FOUND
+      );
     }
 
     const eventReview = new EventReview();
@@ -290,52 +348,63 @@ export class EventsService {
   }
 
   async getEventReviews(userId: string, eventId: string) {
-
-    const [providerStaff, reviews]: [ProviderStaff, EventReview[]] = await Promise.all([
-      this.providerService.findProviderStaffProviderIdByUserIdEmployeedOrOwner(userId),
-      this.eventReviewsRepository.find({ where: { eventId } })
-    ]);
+    const [providerStaff, reviews]: [ProviderStaff, EventReview[]] =
+      await Promise.all([
+        this.providerService.findProviderStaffProviderIdByUserIdEmployeedOrOwner(
+          userId
+        ),
+        this.eventReviewsRepository.find({ where: { eventId } }),
+      ]);
 
     if (!providerStaff) {
-      throw new HttpException({
-        statusCode: HttpStatus.NOT_FOUND,
-        error: 'Not found',
-        message: [
-          'Provider not found'
-        ]
-      }, HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.NOT_FOUND,
+          error: 'Not found',
+          message: ['Provider not found'],
+        },
+        HttpStatus.NOT_FOUND
+      );
     }
 
     return reviews;
   }
 
   async remove(userId: string, removeEventInput: RemoveEventInput) {
-
     const [providerStaff, event] = await Promise.all([
-      this.providerService.findProviderStaffIdProviderIdByUserIdEmployeedOrOwner(userId),
-      this.eventsRepository.findOne({ where: { id: removeEventInput.eventId }, select: { id: true, status: true } })
+      this.providerService.findProviderStaffIdProviderIdByUserIdEmployeedOrOwner(
+        userId
+      ),
+      this.eventsRepository.findOne({
+        where: { id: removeEventInput.eventId },
+        select: { id: true, status: true },
+      }),
     ]);
 
     event.status = EventStatus.DELETED;
-    if (!providerStaff || removeEventInput.providerId !== providerStaff.providerId) {
-      throw new HttpException({
-        statusCode: HttpStatus.NOT_FOUND,
-        error: 'Not found',
-        message: [
-          'Provider not found'
-        ]
-      }, HttpStatus.NOT_FOUND);
+    if (
+      !providerStaff ||
+      removeEventInput.providerId !== providerStaff.providerId
+    ) {
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.NOT_FOUND,
+          error: 'Not found',
+          message: ['Provider not found'],
+        },
+        HttpStatus.NOT_FOUND
+      );
     }
     await this.eventsRepository.update(event.id, event);
     return event;
   }
 
   async findEventIdMissionStatementImageURLAndKeyByUserId(userId: string) {
-
     // const event: Event = await this.eventsRepository.findOne({where: {provider: {}}})
     const provider = await this.providerService.findMyProvider(userId);
-    const event = await this.eventsRepository.findOne({ where: { providerId: provider.id } });
-
+    const event = await this.eventsRepository.findOne({
+      where: { providerId: provider.id },
+    });
 
     return event;
   }
