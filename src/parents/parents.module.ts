@@ -8,5 +8,6 @@ import { ParentsService } from './parents.service';
 @Module({
   imports: [TypeOrmModule.forFeature([Child, Contact])],
   providers: [ParentsResolver, ParentsService],
+  exports: [ParentsService],
 })
 export class ParentsModule {}
