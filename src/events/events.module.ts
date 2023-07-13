@@ -32,5 +32,6 @@ import { TicketsService } from './tickets.service';
     ProvidersModule,
   ],
   providers: [EventsResolver, EventsService, TicketsService],
+  exports: [EventsService],
 })
 export class EventsModule {}
